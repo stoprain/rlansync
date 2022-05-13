@@ -1,0 +1,4 @@
+rlansync_client/Cargo.lock
+rlansync_client/target
+rlansync_client/sync
+rlansync_client/.rlansync.db
