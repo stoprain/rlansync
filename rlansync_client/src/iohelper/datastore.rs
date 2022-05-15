@@ -1,17 +1,33 @@
+/*
+
+kv store
+* in memory: HashMap
+* sled
+
+configuration
+file vs hash
+
+
+*/
+
+
 // use sqlite;
 use uuid::Uuid;
 
 // mod Datastore;
 use sqlite::Value;
+extern crate machine_uid;
 
 pub struct Datastore {
     connection: sqlite::Connection,
+    machineUid: String,
 }
 
 impl Datastore {
     pub fn new() -> Datastore {
         Datastore {
-            connection: sqlite::open(".rlansync.db").unwrap()
+            connection: sqlite::open(".rlansync.db").unwrap(),
+            machineUid: machine_uid::get().unwrap(),
         }
     }
 
@@ -19,7 +35,7 @@ impl Datastore {
         self.connection
             .execute(
                 "
-                CREATE TABLE IF NOT EXISTS entries (uuid TEXT, path TEXT, digest TEXT);
+                CREATE TABLE IF NOT EXISTS entries (uuid TEXT, path TEXT, digest TEXT, owner TEXT);
                 ",
             )
             .unwrap();
