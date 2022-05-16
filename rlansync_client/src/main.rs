@@ -18,9 +18,13 @@ mod scanner;
 // use zeroconf::prelude::*;
 // use zeroconf::{MdnsBrowser, ServiceDiscovery, ServiceType};
 
-use simple_mdns::ServiceDiscovery;
+// use simple_mdns::ServiceDiscovery;
 use std::net::SocketAddr;
 use std::str::FromStr;
+use std::{thread, time};
+use mdns_sd::{ServiceDaemon, ServiceInfo};
+use std::collections::HashMap;
+
 
 /*
     * init client with configuration (machineId)
@@ -42,6 +46,8 @@ use std::str::FromStr;
             https://docs.rs/zeroconf/latest/zeroconf/
             https://www.reddit.com/r/rust/comments/npjngv/simple_dns_and_simple_mdns/
             https://users.rust-lang.org/t/mdns-and-dns-sd-for-the-trust-dns-resolver-feedback-desired/16718
+            https://docs.rs/mdns-sd/latest/mdns_sd/
+            https://serverfault.com/questions/136133/bonjour-mdns-broadcast-across-subnets
             
         * sync tree
             //https://stackoverflow.com/questions/66922989/convert-a-struct-to-byte-array-and-back-in-rust
@@ -94,10 +100,35 @@ fn main() {
     //     event_loop.poll(Duration::from_secs(0)).unwrap();
     // }
 
-    let mut discovery = ServiceDiscovery::new("a", "_mysrv._tcp.local", 60).expect("Invalid Service Name");
-    discovery.add_service_info(SocketAddr::from_str("192.168.1.4:8090").unwrap().into());
-    loop {
+    // Create a daemon
+    let mdns = ServiceDaemon::new().expect("Failed to create daemon");
 
+    // Create a service info.
+    let service_type = "_mdns-sd-my-test._udp.local.";
+    let instance_name = "my_instance";
+    let host_ipv4 = "192.168.1.12";
+    let host_name = "192.168.1.12.local.";
+    let port = 5200;
+    let mut properties = HashMap::new();
+    properties.insert("property_1".to_string(), "test".to_string());
+    properties.insert("property_2".to_string(), "1234".to_string());
+
+    let my_service = ServiceInfo::new(
+        service_type,
+        instance_name,
+        host_name,
+        host_ipv4,
+        port,
+        Some(properties),
+    );
+
+    // Register with the daemon, which publishs the service.
+    mdns.register(my_service).expect("Failed to register our service");
+
+    // let future = mdns();
+    // block_on(future);
+    loop {
+        thread::sleep(time::Duration::from_millis(10));
     }
 }
 
