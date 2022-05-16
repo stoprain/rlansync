@@ -11,5 +11,5 @@ ring = "0.17.0-alpha.11"
 data-encoding = "2.3.2"
 sqlite = "0.26.0"
 machine-uid = "0.2.0"
-zeroconf = "0.10.5"
+simple-mdns = "0.3.9"
 uuid = { version = "1.0.0", features = ["serde", "v4"] }
