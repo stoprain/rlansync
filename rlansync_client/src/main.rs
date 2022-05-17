@@ -19,11 +19,11 @@ mod scanner;
 // use zeroconf::{MdnsBrowser, ServiceDiscovery, ServiceType};
 
 // use simple_mdns::ServiceDiscovery;
-use std::net::SocketAddr;
-use std::str::FromStr;
+// use std::net::SocketAddr;
+// use std::str::FromStr;
 use std::{thread, time};
-use mdns_sd::{ServiceDaemon, ServiceInfo};
-use std::collections::HashMap;
+// use mdns_sd::{ServiceDaemon, ServiceInfo};
+// use std::collections::HashMap;
 
 
 /*
@@ -57,6 +57,8 @@ use std::collections::HashMap;
     *endloop
 */
 
+use rlansync_lib;
+
 fn main() {
     // let id = Uuid::new_v4();
     // println!("uuid = {}", id)
@@ -70,6 +72,8 @@ fn main() {
     let mut scanner = scanner::Scanner::new();
     scanner.scan(filename);
 
+    let c = rlansync_lib::shipping_rust_addition(1, 2);
+    println!("result {:?}", c);
 
     // let mut service = MdnsService::new(ServiceType::new("http", "tcp").unwrap(), 8080);
     // let mut txt_record = TxtRecord::new();
@@ -100,30 +104,30 @@ fn main() {
     //     event_loop.poll(Duration::from_secs(0)).unwrap();
     // }
 
-    // Create a daemon
-    let mdns = ServiceDaemon::new().expect("Failed to create daemon");
+    // // Create a daemon
+    // let mdns = ServiceDaemon::new().expect("Failed to create daemon");
 
-    // Create a service info.
-    let service_type = "_mdns-sd-my-test._udp.local.";
-    let instance_name = "my_instance";
-    let host_ipv4 = "192.168.1.12";
-    let host_name = "192.168.1.12.local.";
-    let port = 5200;
-    let mut properties = HashMap::new();
-    properties.insert("property_1".to_string(), "test".to_string());
-    properties.insert("property_2".to_string(), "1234".to_string());
+    // // Create a service info.
+    // let service_type = "_mdns-sd-my-test._udp.local.";
+    // let instance_name = "my_instance";
+    // let host_ipv4 = "192.168.1.12";
+    // let host_name = "192.168.1.12.local.";
+    // let port = 5200;
+    // let mut properties = HashMap::new();
+    // properties.insert("property_1".to_string(), "test".to_string());
+    // properties.insert("property_2".to_string(), "1234".to_string());
 
-    let my_service = ServiceInfo::new(
-        service_type,
-        instance_name,
-        host_name,
-        host_ipv4,
-        port,
-        Some(properties),
-    );
+    // let my_service = ServiceInfo::new(
+    //     service_type,
+    //     instance_name,
+    //     host_name,
+    //     host_ipv4,
+    //     port,
+    //     Some(properties),
+    // );
 
-    // Register with the daemon, which publishs the service.
-    mdns.register(my_service).expect("Failed to register our service");
+    // // Register with the daemon, which publishs the service.
+    // mdns.register(my_service).expect("Failed to register our service");
 
     // let future = mdns();
     // block_on(future);
