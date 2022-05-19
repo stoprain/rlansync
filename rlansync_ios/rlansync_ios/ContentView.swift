@@ -6,11 +6,17 @@
 //
 
 import SwiftUI
+import YNLib
 
 struct ContentView: View {
     var body: some View {
         Text("Hello, world! \(shipping_rust_addition(30, 1))")
             .padding()
+            .onAppear {
+                RAsyncOperation { result in
+                    print("RAsyncOperation \(String(cString: result))")
+                }
+            }
     }
 }
 
