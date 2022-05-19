@@ -1,0 +1,14 @@
+{
+  "pins" : [
+    {
+      "identity" : "ynlib",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/stoprain/YNLib",
+      "state" : {
+        "branch" : "spm",
+        "revision" : "78aee047ed3a27134f4bf73fc9ea8849212d0250"
+      }
+    }
+  ],
+  "version" : 2
+}
