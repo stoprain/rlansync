@@ -22,7 +22,8 @@ pub extern "C" fn shipping_rust_addition(a: c_int, b: c_int) -> c_int {
 
 use std::os::raw::{c_char};
 use std::ffi::{CString, CStr};
-
+use get_if_addrs::IfAddr::{V4, V6};
+use get_if_addrs::Ifv6Addr;
 // #[no_mangle]
 // pub extern "C" fn notify(from: *const c_char) {
 //     let c_str = unsafe { CStr::from_ptr(from) };
@@ -38,6 +39,12 @@ use std::ffi::{CString, CStr};
 use std::time::Duration;
 use notify::{Watcher, RecursiveMode, watcher};
 use std::sync::mpsc::channel;
+
+// use local_ip_address::local_ip;
+use mdns_sd::{ServiceDaemon, ServiceInfo};
+use std::collections::HashMap;
+use gethostname::gethostname;
+use substring::Substring;
 
 #[repr(C)]
 #[derive(Copy, Clone)]
@@ -71,6 +78,60 @@ pub extern "C" fn notify(from: *const c_char, callback: CompletedCallback) {
     //     thread::sleep(Duration::from_secs(3));
     //     callback.succeeded()
     // });
+
+    let mut ip = String::new();
+    for iface in get_if_addrs::get_if_addrs().unwrap() {
+        if iface.name == "en0" {
+            match iface.addr {
+                V4(v) => {
+                    ip = v.ip.to_string().to_owned()
+                },
+                V6(v) => {},
+            }
+        }
+        // println!("{:#?}", iface);
+    }
+
+    // Create a daemon
+    let mdns = ServiceDaemon::new().expect("Failed to create daemon");
+
+
+/*
+dns-sd -B _services._dns-sd._udp
+dns-sd -B _rlan-sync._udp
+dns-sd -L "rains-macb" _rlan-sync._udp
+
+sudo killall -HUP mDNSResponder;
+*/
+
+    // Create a service info.
+    let service_type = "_rlan-sync._udp.local.";
+    let ss = gethostname().into_string().unwrap().to_lowercase();
+    let instance_name = ss.substring(0, 10);
+    // let instance_name = "my_instance";
+
+    let s = ip.clone() + ".local.";
+    let host_ipv4 = ip.as_str();
+    let host_name = s.as_str();
+    let port = 5200;
+    let mut properties = HashMap::new();
+    properties.insert("property_1".to_string(), "test".to_string());
+    properties.insert("property_2".to_string(), "1234".to_string());
+
+    println!("instance_name {:?}", instance_name);
+    println!("host_name {:?}", host_name);
+
+    let my_service = ServiceInfo::new(
+        service_type,
+        &instance_name,
+        host_name,
+        host_ipv4,
+        port,
+        Some(properties),
+    ).unwrap();
+
+    // Register with the daemon, which publishes the service.
+    mdns.register(my_service).expect("Failed to register our service");
 
     let c_str = unsafe { CStr::from_ptr(from) };
     let default = match c_str.to_str() {

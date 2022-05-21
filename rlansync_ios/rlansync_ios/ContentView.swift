@@ -13,8 +13,10 @@ struct ContentView: View {
         Text("Hello, world! \(shipping_rust_addition(30, 1))")
             .padding()
             .onAppear {
-                RAsyncOperation { result in
-                    print("RAsyncOperation \(String(cString: result))")
+                DispatchQueue.global().async {
+                    RAsyncOperation { result in
+                        print("RAsyncOperation \(String(cString: result))")
+                    }
                 }
             }
     }
