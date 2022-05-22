@@ -67,29 +67,62 @@ extern "C" fn ccallback(userdata: *mut c_void, callback: *mut c_char) {
 
 }
 
+use std::net::{TcpStream};
+use std::io::{Read, Write};
+use std::str::from_utf8;
+
 fn main() {
+    match TcpStream::connect("192.168.1.7:8888") {
+        Ok(mut stream) => {
+            println!("Successfully connected to server in port 3333");
+
+            let msg = b"Hello!";
+
+            stream.write(msg).unwrap();
+            println!("Sent Hello, awaiting reply...");
+
+            let mut data = [0 as u8; 6]; // using 6 byte buffer
+            match stream.read_exact(&mut data) {
+                Ok(_) => {
+                    if &data == msg {
+                        println!("Reply is ok!");
+                    } else {
+                        let text = from_utf8(&data).unwrap();
+                        println!("Unexpected reply: {}", text);
+                    }
+                },
+                Err(e) => {
+                    println!("Failed to receive data: {}", e);
+                }
+            }
+        },
+        Err(e) => {
+            println!("Failed to connect: {}", e);
+        }
+    }
+    println!("Terminated.");
     // let id = Uuid::new_v4();
     // println!("uuid = {}", id)
 
-    let args: Vec<String> = env::args().collect();
-    // // println!("{:?}", args)
-    let filename = &args[1];
-    // println!("Syncing {}", filename);
+    // let args: Vec<String> = env::args().collect();
+    // // // println!("{:?}", args)
+    // let filename = &args[1];
+    // // println!("Syncing {}", filename);
 
-    // iohelper::test(filename.to_string());
-    let mut scanner = scanner::Scanner::new();
-    scanner.scan(filename);
+    // // iohelper::test(filename.to_string());
+    // let mut scanner = scanner::Scanner::new();
+    // scanner.scan(filename);
 
-    let c = rlansync_lib::shipping_rust_addition(1, 2);
-    println!("result {:?}", c);
+    // let c = rlansync_lib::shipping_rust_addition(1, 2);
+    // println!("result {:?}", c);
 
-    let c = CompletedCallback {
-        userdata: 0 as *mut c_void,
-        callback: ccallback,
-    };
+    // let c = CompletedCallback {
+    //     userdata: 0 as *mut c_void,
+    //     callback: ccallback,
+    // };
 
-    let a = filename.as_ptr() as *const c_char;
-    rlansync_lib::notify(a, c);
+    // let a = filename.as_ptr() as *const c_char;
+    // rlansync_lib::notify(a, c);
 
     // let mut service = MdnsService::new(ServiceType::new("http", "tcp").unwrap(), 8080);
     // let mut txt_record = TxtRecord::new();
@@ -147,9 +180,9 @@ fn main() {
 
     // let future = mdns();
     // block_on(future);
-    loop {
-        thread::sleep(time::Duration::from_millis(10));
-    }
+    // loop {
+    //     thread::sleep(time::Duration::from_millis(10));
+    // }
 }
 
 // #[derive(Default, Debug)]
