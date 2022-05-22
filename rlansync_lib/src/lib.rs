@@ -41,7 +41,7 @@ use notify::{Watcher, RecursiveMode, watcher};
 use std::sync::mpsc::channel;
 
 // use local_ip_address::local_ip;
-use mdns_sd::{ServiceDaemon, ServiceInfo};
+use mdns_sd::{ServiceDaemon, ServiceInfo, ServiceEvent};
 use std::collections::HashMap;
 use gethostname::gethostname;
 use substring::Substring;
@@ -49,8 +49,8 @@ use substring::Substring;
 #[repr(C)]
 #[derive(Copy, Clone)]
 pub struct CompletedCallback {
-    userdata: *mut c_void,
-    callback: extern "C" fn(*mut c_void, *mut c_char),
+    pub userdata: *mut c_void,
+    pub callback: extern "C" fn(*mut c_void, *mut c_char),
 }
 
 unsafe impl Send for CompletedCallback {}
@@ -100,12 +100,36 @@ pub extern "C" fn notify(from: *const c_char, callback: CompletedCallback) {
 dns-sd -B _services._dns-sd._udp
 dns-sd -B _rlan-sync._udp
 dns-sd -L "rains-macb" _rlan-sync._udp
+dns-sd -L "rains-ipho" _rlan-sync._udp
 
 sudo killall -HUP mDNSResponder;
 */
 
     // Create a service info.
-    let service_type = "_rlan-sync._udp.local.";
+    let service_type = "_rlan._udp.local.";
+
+    //receiver
+    // let mdns1 = ServiceDaemon::new().expect("Failed to create daemon");
+    let receiver = mdns.browse(service_type).expect("Failed to browse");
+    // Receive the browse events in sync or async. Here is
+    // an example of using a thread. Users can call `receiver.recv_async().await`
+    // if running in async environment.
+    std::thread::spawn(move || {
+        while let Ok(event) = receiver.recv() {
+            match event {
+                ServiceEvent::ServiceResolved(info) => {
+                    println!("Resolved a new service: {}, {:?}, {}", info.get_fullname(), info.get_addresses(), info.get_port());
+                }
+                other_event => {
+                    println!("Received other event: {:?}", &other_event);
+                }
+            }
+        }
+    });
+
+    //publish
+
+
     let ss = gethostname().into_string().unwrap().to_lowercase();
     let instance_name = ss.substring(0, 10);
     // let instance_name = "my_instance";
@@ -118,6 +142,7 @@ sudo killall -HUP mDNSResponder;
     properties.insert("property_1".to_string(), "test".to_string());
     properties.insert("property_2".to_string(), "1234".to_string());
 
+    println!("from {:?}", from);
     println!("instance_name {:?}", instance_name);
     println!("host_name {:?}", host_name);
 

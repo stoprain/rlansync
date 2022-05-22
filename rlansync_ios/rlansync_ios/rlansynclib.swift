@@ -25,6 +25,5 @@ public func RAsyncOperation(closure: @escaping (UnsafePointer<Int8>) -> Void) {
     }
 
     let completion = CompletedCallback(userdata: userdata, callback: callback)
-    print("documentPath \(AppSandboxHelper.documentsPath)")
     notify(AppSandboxHelper.documentsPath.cString(using: .utf8)!, completion)
 }

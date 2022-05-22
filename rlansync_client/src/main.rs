@@ -18,6 +18,7 @@ mod scanner;
 // use zeroconf::prelude::*;
 // use zeroconf::{MdnsBrowser, ServiceDiscovery, ServiceType};
 
+use std::ffi::CString;
 // use simple_mdns::ServiceDiscovery;
 // use std::net::SocketAddr;
 // use std::str::FromStr;
@@ -58,6 +59,13 @@ use std::{thread, time};
 */
 
 use rlansync_lib;
+use rlansync_lib::CompletedCallback;
+
+use std::os::raw::{c_void, c_char};
+
+extern "C" fn ccallback(userdata: *mut c_void, callback: *mut c_char) {
+
+}
 
 fn main() {
     // let id = Uuid::new_v4();
@@ -74,6 +82,14 @@ fn main() {
 
     let c = rlansync_lib::shipping_rust_addition(1, 2);
     println!("result {:?}", c);
+
+    let c = CompletedCallback {
+        userdata: 0 as *mut c_void,
+        callback: ccallback,
+    };
+
+    let a = filename.as_ptr() as *const c_char;
+    rlansync_lib::notify(a, c);
 
     // let mut service = MdnsService::new(ServiceType::new("http", "tcp").unwrap(), 8080);
     // let mut txt_record = TxtRecord::new();
