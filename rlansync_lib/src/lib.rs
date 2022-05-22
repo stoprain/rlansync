@@ -46,6 +46,10 @@ use std::collections::HashMap;
 use gethostname::gethostname;
 use substring::Substring;
 
+use std::net::{Shutdown,TcpListener, TcpStream};
+use std::thread;
+use std::io::{Read,Write,Error};
+
 #[repr(C)]
 #[derive(Copy, Clone)]
 pub struct CompletedCallback {
@@ -79,114 +83,142 @@ pub extern "C" fn notify(from: *const c_char, callback: CompletedCallback) {
     //     callback.succeeded()
     // });
 
-    let mut ip = String::new();
-    for iface in get_if_addrs::get_if_addrs().unwrap() {
-        if iface.name == "en0" {
-            match iface.addr {
-                V4(v) => {
-                    ip = v.ip.to_string().to_owned()
-                },
-                V6(v) => {},
+//     let mut ip = String::new();
+//     for iface in get_if_addrs::get_if_addrs().unwrap() {
+//         if iface.name == "en0" {
+//             match iface.addr {
+//                 V4(v) => {
+//                     ip = v.ip.to_string().to_owned()
+//                 },
+//                 V6(v) => {},
+//             }
+//         }
+//         // println!("{:#?}", iface);
+//     }
+
+//     // Create a daemon
+//     let mdns = ServiceDaemon::new().expect("Failed to create daemon");
+
+
+// /*
+// dns-sd -B _services._dns-sd._udp
+// dns-sd -B _rlan-sync._udp
+// dns-sd -L "rains-macb" _rlan-sync._udp
+// dns-sd -L "rains-ipho" _rlan-sync._udp
+
+// sudo killall -HUP mDNSResponder;
+// */
+
+//     // Create a service info.
+//     let service_type = "_rlan._tcp.local.";
+
+//     //receiver
+//     // let mdns1 = ServiceDaemon::new().expect("Failed to create daemon");
+//     let receiver = mdns.browse(service_type).expect("Failed to browse");
+//     // Receive the browse events in sync or async. Here is
+//     // an example of using a thread. Users can call `receiver.recv_async().await`
+//     // if running in async environment.
+//     std::thread::spawn(move || {
+//         while let Ok(event) = receiver.recv() {
+//             match event {
+//                 ServiceEvent::ServiceResolved(info) => {
+//                     println!("Resolved a new service: {}, {:?}, {}", info.get_fullname(), info.get_addresses(), info.get_port());
+//                 }
+//                 other_event => {
+//                     println!("Received other event: {:?}", &other_event);
+//                 }
+//             }
+//         }
+//     });
+
+//     //publish
+
+
+//     let ss = gethostname().into_string().unwrap().to_lowercase();
+//     let instance_name = ss.substring(0, 10);
+//     // let instance_name = "my_instance";
+
+//     let s = ip.clone() + ".local.";
+//     let host_ipv4 = ip.as_str();
+//     let host_name = s.as_str();
+//     let port = 8888;
+//     let mut properties = HashMap::new();
+//     properties.insert("property_1".to_string(), "test".to_string());
+//     properties.insert("property_2".to_string(), "1234".to_string());
+
+//     println!("from {:?}", from);
+//     println!("instance_name {:?}", instance_name);
+//     println!("host_name {:?}", host_name);
+
+//     let my_service = ServiceInfo::new(
+//         service_type,
+//         &instance_name,
+//         host_name,
+//         host_ipv4,
+//         port,
+//         Some(properties),
+//     ).unwrap();
+
+//     // Register with the daemon, which publishes the service.
+//     mdns.register(my_service).expect("Failed to register our service");
+
+//     let c_str = unsafe { CStr::from_ptr(from) };
+//     let default = match c_str.to_str() {
+//         Err(_) => "",
+//         Ok(string) => string,
+//     };
+
+//     let (tx, rx) = channel();
+//     let mut watcher = watcher(tx, Duration::from_secs(1)).unwrap();
+//     watcher.watch(default, RecursiveMode::Recursive).unwrap();
+//     println!("watch {:?}", default);
+
+//     std::thread::spawn(move || {
+//         loop {
+//             match rx.recv() {
+//                 Ok(event) => {
+//                     println!("{:?}", event);
+//                     match event {
+//                         notify::DebouncedEvent::Remove(pathbuf) => {
+//                             println!("Remove pathbuf {:?}", pathbuf);
+//                         }
+//                         notify::DebouncedEvent::Create(pathbuf) => {
+//                             println!("Create pathbuf {:?}", pathbuf);
+//                             let s = pathbuf.into_os_string().into_string().unwrap();
+//                             callback.succeeded(s);
+//                         }
+//                         _ => {
+    
+//                         }
+//                     }
+//                 },
+//                 Err(e) => println!("watch error: {:?}", e),
+//             }
+//         }
+//     });
+
+    let listener = TcpListener::bind("0.0.0.0:8888").expect("Could not bind");
+    println!("listener {:?}", listener);
+    for stream in listener.incoming() {
+        match stream {
+            Err(e)=> {eprintln!("failed: {}", e)}
+            Ok(stream) => {
+                thread::spawn(move || {
+                    handle_client(stream).unwrap_or_else(|error| eprintln!("{:?}", error));
+                });
             }
-        }
-        // println!("{:#?}", iface);
+        } 
     }
+}
 
-    // Create a daemon
-    let mdns = ServiceDaemon::new().expect("Failed to create daemon");
-
-
-/*
-dns-sd -B _services._dns-sd._udp
-dns-sd -B _rlan-sync._udp
-dns-sd -L "rains-macb" _rlan-sync._udp
-dns-sd -L "rains-ipho" _rlan-sync._udp
-
-sudo killall -HUP mDNSResponder;
-*/
-
-    // Create a service info.
-    let service_type = "_rlan._udp.local.";
-
-    //receiver
-    // let mdns1 = ServiceDaemon::new().expect("Failed to create daemon");
-    let receiver = mdns.browse(service_type).expect("Failed to browse");
-    // Receive the browse events in sync or async. Here is
-    // an example of using a thread. Users can call `receiver.recv_async().await`
-    // if running in async environment.
-    std::thread::spawn(move || {
-        while let Ok(event) = receiver.recv() {
-            match event {
-                ServiceEvent::ServiceResolved(info) => {
-                    println!("Resolved a new service: {}, {:?}, {}", info.get_fullname(), info.get_addresses(), info.get_port());
-                }
-                other_event => {
-                    println!("Received other event: {:?}", &other_event);
-                }
-            }
-        }
-    });
-
-    //publish
-
-
-    let ss = gethostname().into_string().unwrap().to_lowercase();
-    let instance_name = ss.substring(0, 10);
-    // let instance_name = "my_instance";
-
-    let s = ip.clone() + ".local.";
-    let host_ipv4 = ip.as_str();
-    let host_name = s.as_str();
-    let port = 5200;
-    let mut properties = HashMap::new();
-    properties.insert("property_1".to_string(), "test".to_string());
-    properties.insert("property_2".to_string(), "1234".to_string());
-
-    println!("from {:?}", from);
-    println!("instance_name {:?}", instance_name);
-    println!("host_name {:?}", host_name);
-
-    let my_service = ServiceInfo::new(
-        service_type,
-        &instance_name,
-        host_name,
-        host_ipv4,
-        port,
-        Some(properties),
-    ).unwrap();
-
-    // Register with the daemon, which publishes the service.
-    mdns.register(my_service).expect("Failed to register our service");
-
-    let c_str = unsafe { CStr::from_ptr(from) };
-    let default = match c_str.to_str() {
-        Err(_) => "",
-        Ok(string) => string,
-    };
-
-    let (tx, rx) = channel();
-    let mut watcher = watcher(tx, Duration::from_secs(1)).unwrap();
-    watcher.watch(default, RecursiveMode::Recursive).unwrap();
-    println!("watch {:?}", default);
+fn handle_client(mut stream: TcpStream)-> Result<(), Error> {
+    println!("incoming connection from: {}", stream.peer_addr()?);
+    let mut buf = [0;512];
     loop {
-        match rx.recv() {
-            Ok(event) => {
-                println!("{:?}", event);
-                match event {
-                    notify::DebouncedEvent::Remove(pathbuf) => {
-                        println!("Remove pathbuf {:?}", pathbuf);
-                    }
-                    notify::DebouncedEvent::Create(pathbuf) => {
-                        println!("Create pathbuf {:?}", pathbuf);
-                        let s = pathbuf.into_os_string().into_string().unwrap();
-                        callback.succeeded(s);
-                    }
-                    _ => {
-
-                    }
-                }
-            },
-            Err(e) => println!("watch error: {:?}", e),
-        }
+        let bytes_read = stream.read(&mut buf)?;
+        if bytes_read == 0 {return Ok(())}
+        let tmp = format!("{}", String::from_utf8_lossy(&buf).trim());
+        eprintln!("getting {}",tmp);
+        stream.write(&buf[..bytes_read])?;
     }
 }
