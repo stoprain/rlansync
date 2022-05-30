@@ -64,27 +64,41 @@ class ShareViewController: SLComposeServiceViewController {
          uuid.public.image
             []
          
+         
+         share.uuids = [String]()
+         share.[uuid].public.plain-text
+         share.[uuid].public.image
+         
          */
         print("#################")
+        let uuid = UUID().uuidString
         var text = "#\(contentText ?? "")\n"
         var images = [Data]()
         if let prefs = UserDefaults(suiteName: sharedIdentifier) {
+            var uuids = prefs.array(forKey: "share.uuids") as? [String]
+            if uuids == nil {
+                uuids = [String]()
+            }
+            uuids?.append(uuid)
+            prefs.set(uuids, forKey: "share.uuids")
+            
+            prefs.set(text, forKey: "share.\(uuid).public.plain-text")
             if let item = extensionContext?.inputItems.first as? NSExtensionItem {
                 for itemProvider in item.attachments ?? [] {
                     if itemProvider.hasItemConformingToTypeIdentifier("public.plain-text") {
                         itemProvider.loadItem(forTypeIdentifier: "public.plain-text", options: nil) { data, error in
                             if let t = data as? String {
                                 text += t + "\n"
-                                prefs.set(text, forKey: "share.public.plain-text")
+                                prefs.set(text, forKey: "share.\(uuid).public.plain-text")
                             }
 //                            print("## plain-text \(data)")
                         }
                     }
                     if itemProvider.hasItemConformingToTypeIdentifier("public.url") {
-                        itemProvider.loadItem(forTypeIdentifier: "public.url", options: nil) { data, error in
-                            if let t = data as? String {
+                        let _ = itemProvider.loadObject(ofClass: String.self) { data, error in
+                            if let t = data {
                                 text += t + "\n"
-                                prefs.set(text, forKey: "share.public.plain-text")
+                                prefs.set(text, forKey: "share.\(uuid).public.plain-text")
                             }
 //                            print("## url \(data)")
                         }
@@ -98,10 +112,12 @@ class ShareViewController: SLComposeServiceViewController {
 //                            print("### image \(data)")
 //                        }
                         
-                        itemProvider.loadObject(ofClass: UIImage.self) { data, error in
-                            images.append((data as? UIImage)?.pngData() as! Data)
-                            prefs.set(images, forKey: "share.public.image")
-//                            print("### image \(data)")
+                        let _ = itemProvider.loadObject(ofClass: UIImage.self) { data, error in
+                            let i = data as? UIImage
+                            images.append(i!.pngData()!)
+                            prefs.set(images, forKey: "share.\(uuid).public.image")
+                            print("### images \(images.count)")
+                            print("### image \(i?.size)")
                         }
                     }
                 }
@@ -160,7 +176,7 @@ class ShareViewController: SLComposeServiceViewController {
 //        if let prefs = UserDefaults(suiteName: sharedIdentifier) {
 //            let t = prefs.data(forKey: "share.public.plain-text")
 //            print("##### \(t)")
-//            
+//
 //            let tt = prefs.data(forKey: "share.public.image")
 //            print("##### \(tt)")
 //        }
