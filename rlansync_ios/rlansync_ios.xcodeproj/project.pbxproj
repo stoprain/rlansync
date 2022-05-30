@@ -9,15 +9,50 @@
 /* Begin PBXBuildFile section */
 		B44EA15828367A1B0080D490 /* YNLib in Frameworks */ = {isa = PBXBuildFile; productRef = B44EA15728367A1B0080D490 /* YNLib */; };
 		B44EA15A283682200080D490 /* rlansynclib.swift in Sources */ = {isa = PBXBuildFile; fileRef = B44EA159283682200080D490 /* rlansynclib.swift */; };
+		B4583E4C2843A3460079853C /* ShareViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4583E4B2843A3460079853C /* ShareViewController.swift */; };
+		B4583E4F2843A3460079853C /* MainInterface.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = B4583E4D2843A3460079853C /* MainInterface.storyboard */; };
+		B4583E532843A3460079853C /* share.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = B4583E492843A3460079853C /* share.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		B45B826728327D03008D6DAB /* rlansync_iosApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = B45B826628327D03008D6DAB /* rlansync_iosApp.swift */; };
 		B45B826928327D03008D6DAB /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B45B826828327D03008D6DAB /* ContentView.swift */; };
 		B45B826B28327D05008D6DAB /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B45B826A28327D05008D6DAB /* Assets.xcassets */; };
 		B45B826E28327D05008D6DAB /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B45B826D28327D05008D6DAB /* Preview Assets.xcassets */; };
 		B45B827E28327FB7008D6DAB /* librlansync_lib.a in Frameworks */ = {isa = PBXBuildFile; fileRef = B45B827728327F0B008D6DAB /* librlansync_lib.a */; };
+		B4DF483928437D4900D5B57C /* ItemTextView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4DF483828437D4900D5B57C /* ItemTextView.swift */; };
 /* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		B4583E512843A3460079853C /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = B45B825B28327D03008D6DAB /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = B4583E482843A3460079853C;
+			remoteInfo = share;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		B4DF484C284396EC00D5B57C /* Embed App Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				B4583E532843A3460079853C /* share.appex in Embed App Extensions */,
+			);
+			name = "Embed App Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		B44EA159283682200080D490 /* rlansynclib.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = rlansynclib.swift; sourceTree = "<group>"; };
+		B4583E442843A3370079853C /* share copy-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = "share copy-Info.plist"; path = "/Users/stoprain/Documents/repos/rlansync/rlansync_ios/share copy-Info.plist"; sourceTree = "<absolute>"; };
+		B4583E492843A3460079853C /* share.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = share.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		B4583E4B2843A3460079853C /* ShareViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShareViewController.swift; sourceTree = "<group>"; };
+		B4583E4E2843A3460079853C /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/MainInterface.storyboard; sourceTree = "<group>"; };
+		B4583E502843A3460079853C /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		B4583E572843A4D00079853C /* share.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = share.entitlements; sourceTree = "<group>"; };
+		B4583E582843A5E70079853C /* rlansync_ios.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = rlansync_ios.entitlements; sourceTree = "<group>"; };
 		B45B826328327D03008D6DAB /* rlansync_ios.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = rlansync_ios.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		B45B826628327D03008D6DAB /* rlansync_iosApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = rlansync_iosApp.swift; sourceTree = "<group>"; };
 		B45B826828327D03008D6DAB /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -27,9 +62,20 @@
 		B45B827728327F0B008D6DAB /* librlansync_lib.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = librlansync_lib.a; path = ../rlansync_lib/target/universal/release/librlansync_lib.a; sourceTree = "<group>"; };
 		B45B827928327F19008D6DAB /* rlansync_ios-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "rlansync_ios-Bridging-Header.h"; sourceTree = "<group>"; };
 		B45B827B28327F6D008D6DAB /* libresolv.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libresolv.tbd; path = usr/lib/libresolv.tbd; sourceTree = SDKROOT; };
+		B4DF483828437D4900D5B57C /* ItemTextView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ItemTextView.swift; sourceTree = "<group>"; };
+		B4DF4840284396EC00D5B57C /* ShareViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShareViewController.swift; sourceTree = "<group>"; };
+		B4DF4843284396EC00D5B57C /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/MainInterface.storyboard; sourceTree = "<group>"; };
+		B4DF4845284396EC00D5B57C /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		B4583E462843A3460079853C /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		B45B826028327D03008D6DAB /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -42,12 +88,25 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		B4583E4A2843A3460079853C /* share */ = {
+			isa = PBXGroup;
+			children = (
+				B4583E4B2843A3460079853C /* ShareViewController.swift */,
+				B4583E4D2843A3460079853C /* MainInterface.storyboard */,
+				B4583E502843A3460079853C /* Info.plist */,
+			);
+			path = share;
+			sourceTree = "<group>";
+		};
 		B45B825A28327D03008D6DAB = {
 			isa = PBXGroup;
 			children = (
 				B45B826528327D03008D6DAB /* rlansync_ios */,
+				B4DF483F284396EC00D5B57C /* share */,
+				B4583E4A2843A3460079853C /* share */,
 				B45B826428327D03008D6DAB /* Products */,
 				B45B827428327D58008D6DAB /* Frameworks */,
+				B4583E442843A3370079853C /* share copy-Info.plist */,
 			);
 			sourceTree = "<group>";
 		};
@@ -55,6 +114,7 @@
 			isa = PBXGroup;
 			children = (
 				B45B826328327D03008D6DAB /* rlansync_ios.app */,
+				B4583E492843A3460079853C /* share.appex */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -62,12 +122,14 @@
 		B45B826528327D03008D6DAB /* rlansync_ios */ = {
 			isa = PBXGroup;
 			children = (
+				B4583E582843A5E70079853C /* rlansync_ios.entitlements */,
 				B45B826628327D03008D6DAB /* rlansync_iosApp.swift */,
 				B45B826828327D03008D6DAB /* ContentView.swift */,
 				B45B826A28327D05008D6DAB /* Assets.xcassets */,
 				B45B826C28327D05008D6DAB /* Preview Content */,
 				B45B827928327F19008D6DAB /* rlansync_ios-Bridging-Header.h */,
 				B44EA159283682200080D490 /* rlansynclib.swift */,
+				B4DF483828437D4900D5B57C /* ItemTextView.swift */,
 			);
 			path = rlansync_ios;
 			sourceTree = "<group>";
@@ -90,9 +152,37 @@
 			name = Frameworks;
 			sourceTree = "<group>";
 		};
+		B4DF483F284396EC00D5B57C /* share */ = {
+			isa = PBXGroup;
+			children = (
+				B4583E572843A4D00079853C /* share.entitlements */,
+				B4DF4840284396EC00D5B57C /* ShareViewController.swift */,
+				B4DF4842284396EC00D5B57C /* MainInterface.storyboard */,
+				B4DF4845284396EC00D5B57C /* Info.plist */,
+			);
+			path = share;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
+		B4583E482843A3460079853C /* share */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = B4583E542843A3460079853C /* Build configuration list for PBXNativeTarget "share" */;
+			buildPhases = (
+				B4583E452843A3460079853C /* Sources */,
+				B4583E462843A3460079853C /* Frameworks */,
+				B4583E472843A3460079853C /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = share;
+			productName = share;
+			productReference = B4583E492843A3460079853C /* share.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
 		B45B826228327D03008D6DAB /* rlansync_ios */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = B45B827128327D05008D6DAB /* Build configuration list for PBXNativeTarget "rlansync_ios" */;
@@ -100,10 +190,12 @@
 				B45B825F28327D03008D6DAB /* Sources */,
 				B45B826028327D03008D6DAB /* Frameworks */,
 				B45B826128327D03008D6DAB /* Resources */,
+				B4DF484C284396EC00D5B57C /* Embed App Extensions */,
 			);
 			buildRules = (
 			);
 			dependencies = (
+				B4583E522843A3460079853C /* PBXTargetDependency */,
 			);
 			name = rlansync_ios;
 			packageProductDependencies = (
@@ -120,9 +212,12 @@
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
-				LastSwiftUpdateCheck = 1330;
+				LastSwiftUpdateCheck = 1340;
 				LastUpgradeCheck = 1330;
 				TargetAttributes = {
+					B4583E482843A3460079853C = {
+						CreatedOnToolsVersion = 13.4;
+					};
 					B45B826228327D03008D6DAB = {
 						CreatedOnToolsVersion = 13.3.1;
 						LastSwiftMigration = 1330;
@@ -146,11 +241,20 @@
 			projectRoot = "";
 			targets = (
 				B45B826228327D03008D6DAB /* rlansync_ios */,
+				B4583E482843A3460079853C /* share */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
+		B4583E472843A3460079853C /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				B4583E4F2843A3460079853C /* MainInterface.storyboard in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		B45B826128327D03008D6DAB /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -163,10 +267,19 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		B4583E452843A3460079853C /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				B4583E4C2843A3460079853C /* ShareViewController.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		B45B825F28327D03008D6DAB /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B4DF483928437D4900D5B57C /* ItemTextView.swift in Sources */,
 				B45B826928327D03008D6DAB /* ContentView.swift in Sources */,
 				B45B826728327D03008D6DAB /* rlansync_iosApp.swift in Sources */,
 				B44EA15A283682200080D490 /* rlansynclib.swift in Sources */,
@@ -175,7 +288,88 @@
 		};
 /* End PBXSourcesBuildPhase section */
 
+/* Begin PBXTargetDependency section */
+		B4583E522843A3460079853C /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = B4583E482843A3460079853C /* share */;
+			targetProxy = B4583E512843A3460079853C /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin PBXVariantGroup section */
+		B4583E4D2843A3460079853C /* MainInterface.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				B4583E4E2843A3460079853C /* Base */,
+			);
+			name = MainInterface.storyboard;
+			sourceTree = "<group>";
+		};
+		B4DF4842284396EC00D5B57C /* MainInterface.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				B4DF4843284396EC00D5B57C /* Base */,
+			);
+			name = MainInterface.storyboard;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
+
 /* Begin XCBuildConfiguration section */
+		B4583E552843A3460079853C /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = share/share.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = E8MXEZ8C96;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = share/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = share;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 15.5;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.stoprain.rlansync-ios.share";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		B4583E562843A3460079853C /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = share/share.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = E8MXEZ8C96;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = share/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = share;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 15.5;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.stoprain.rlansync-ios.share";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
 		B45B826F28327D05008D6DAB /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -293,9 +487,11 @@
 		B45B827228327D05008D6DAB /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_ENTITLEMENTS = rlansync_ios/rlansync_ios.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"rlansync_ios/Preview Content\"";
@@ -326,9 +522,11 @@
 		B45B827328327D05008D6DAB /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_ENTITLEMENTS = rlansync_ios/rlansync_ios.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"rlansync_ios/Preview Content\"";
@@ -358,6 +556,15 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		B4583E542843A3460079853C /* Build configuration list for PBXNativeTarget "share" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				B4583E552843A3460079853C /* Debug */,
+				B4583E562843A3460079853C /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		B45B825E28327D03008D6DAB /* Build configuration list for PBXProject "rlansync_ios" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
