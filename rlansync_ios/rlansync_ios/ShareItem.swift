@@ -7,6 +7,11 @@
 
 import YNLib
 
+struct SimpleShareItem {
+    var url: URL
+    var date: Date
+}
+
 struct ShareItem {
     var uuid: String
     var text: String

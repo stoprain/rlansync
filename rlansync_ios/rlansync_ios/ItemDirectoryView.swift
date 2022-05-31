@@ -41,6 +41,7 @@ struct ItemDirectoryView: View {
                     images.append(fu)
                 }
             }
+            print(profileText)
             print(images)
         }
     }
