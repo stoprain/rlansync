@@ -27,14 +27,16 @@ struct ContentView: View {
                             ItemDirectoryView(path: item.url.absoluteString)
                         }
                     } label: {
-                        Text("\(item.url.lastPathComponent) - \(item.date, formatter: itemFormatter)")
+                        Text(item.text ?? "")
                     }
                 }
+                .onDelete(perform: deleteItems)
             }
+            .listStyle(.plain)
             .toolbar {
-//                ToolbarItem(placement: .navigationBarTrailing) {
-//                    EditButton()
-//                }
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    EditButton()
+                }
                 ToolbarItem {
                     Button(action: addItem) {
                         Label("Add Item", systemImage: "plus")
@@ -69,6 +71,17 @@ struct ContentView: View {
 //            }
     }
     
+    private func deleteItems(offsets: IndexSet) {
+        withAnimation {
+            offsets.map { items[$0] }.forEach { item in
+                item.delete()
+                if let index = items.firstIndex(where: { $0.url.path == item.url.path }) {
+                    items.remove(at: index)
+                }
+            }
+        }
+    }
+    
     private func loadFromDocument() {
         let fileManager = FileManager.default
         let documentsURL = fileManager.urls(for: .documentDirectory, in: .userDomainMask)[0]
@@ -85,6 +98,8 @@ struct ContentView: View {
             items.sort {
                 $0.date > $1.date
             }
+            print("### loadFromDocument ")
+            print(items)
         } catch {
             print("Error while enumerating files \(documentsURL.path): \(error.localizedDescription)")
         }

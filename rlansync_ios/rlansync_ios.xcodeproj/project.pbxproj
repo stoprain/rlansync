@@ -59,6 +59,7 @@
 		B43164DF2845097D00BC5EA8 /* ItemDirectoryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ItemDirectoryView.swift; sourceTree = "<group>"; };
 		B43164E12845158900BC5EA8 /* DetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DetailView.swift; sourceTree = "<group>"; };
 		B43164E3284515E500BC5EA8 /* GridItemView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GridItemView.swift; sourceTree = "<group>"; };
+		B43164E52846601200BC5EA8 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		B44EA159283682200080D490 /* rlansynclib.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = rlansynclib.swift; sourceTree = "<group>"; };
 		B4583E582843A5E70079853C /* rlansync_ios.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = rlansync_ios.entitlements; sourceTree = "<group>"; };
 		B45B826328327D03008D6DAB /* rlansync_ios.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = rlansync_ios.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -101,6 +102,7 @@
 				B43164D02844F47D00BC5EA8 /* ShareViewController.swift */,
 				B43164D22844F47D00BC5EA8 /* MainInterface.storyboard */,
 				B43164D52844F47D00BC5EA8 /* Info.plist */,
+				B43164E52846601200BC5EA8 /* README.md */,
 			);
 			path = share;
 			sourceTree = "<group>";

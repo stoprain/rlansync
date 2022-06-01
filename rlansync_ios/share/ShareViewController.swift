@@ -72,7 +72,7 @@ class ShareViewController: SLComposeServiceViewController {
          */
         print("#################")
         let uuid = UUID().uuidString
-        var text = "#\(contentText ?? "")\n"
+        var text = "# \(contentText ?? "")\n"
         var images = [Data]()
         if let prefs = UserDefaults(suiteName: sharedIdentifier) {
             var uuids = prefs.array(forKey: "share.uuids") as? [String]
@@ -84,6 +84,7 @@ class ShareViewController: SLComposeServiceViewController {
             
             prefs.set(text, forKey: "share.\(uuid).public.plain-text")
             if let item = extensionContext?.inputItems.first as? NSExtensionItem {
+                print("### item \(item)")
                 for itemProvider in item.attachments ?? [] {
                     if itemProvider.hasItemConformingToTypeIdentifier("public.plain-text") {
                         itemProvider.loadItem(forTypeIdentifier: "public.plain-text", options: nil) { data, error in
@@ -114,7 +115,8 @@ class ShareViewController: SLComposeServiceViewController {
                         
                         let _ = itemProvider.loadObject(ofClass: UIImage.self) { data, error in
                             let i = data as? UIImage
-                            images.append(i!.pngData()!)
+                            let imageData = i!.jpegData(compressionQuality: 0.7)!
+                            images.append(imageData)
                             prefs.set(images, forKey: "share.\(uuid).public.image")
                             print("### images \(images.count)")
                             print("### image \(i?.size)")

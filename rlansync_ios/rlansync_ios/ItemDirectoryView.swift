@@ -9,26 +9,28 @@ import SwiftUI
 
 struct ItemDirectoryView: View {
     var path: String
-    @State private var profileText = ""
+    @State private var profileText: LocalizedStringKey = ""
     @State private var images = [URL]()
     private static let initialColumns = 3
     @State private var gridColumns = Array(repeating: GridItem(.flexible()), count: initialColumns)
     
     var body: some View {
         VStack {
-            TextEditor(text: $profileText)
+//            TextEditor(text: .init(profileText))
+            Text(profileText)
             
-            LazyVGrid(columns: gridColumns) {
-                ForEach(images, id: \.self) { image in
-                    GeometryReader { geo in
+            ScrollView {
+                HStack {
+                    ForEach(images, id: \.self) { image in
                         NavigationLink(destination: DetailView(item: image)) {
-                            GridItemView(size: geo.size.width, item: image)
+                            GridItemView(size: 100, item: image)
                         }
                     }
                 }
             }
         }
         .onAppear {
+            images.removeAll()
             print(path)
             let fm = FileManager.default
             let url = URL(string: path)!
@@ -36,7 +38,7 @@ struct ItemDirectoryView: View {
             for fu in fileURLs ?? [] {
                 print(fu)
                 if fu.absoluteString.contains(".md") {
-                    profileText = (try? String(contentsOf: fu)) ?? ""
+                    profileText = .init((try? String(contentsOf: fu)) ?? "")
                 } else if fu.absoluteString.contains(".png") {
                     images.append(fu)
                 }
