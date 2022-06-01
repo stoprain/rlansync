@@ -8,6 +8,7 @@ mod tests {
 }
 
 pub mod strings;
+pub mod scanner;
 
 use std::os::raw::c_void;
 
@@ -50,9 +51,9 @@ use std::ops::Deref;
 
 #[repr(C)]
 pub struct SwiftObject {
-    user: *mut c_void,
-    destroy: extern fn(user: *mut c_void),
-    callback_with_arg: extern fn(user: *mut c_void, arg: strings::RustByteSlice),
+    pub user: *mut c_void,
+    pub destroy: extern fn(user: *mut c_void),
+    pub callback_with_arg: extern fn(user: *mut c_void, arg: strings::RustByteSlice),
 }
 
 unsafe impl Send for SwiftObject {}
@@ -168,11 +169,18 @@ pub extern "C" fn notify(from: *const c_char, obj: SwiftObject) {
 
     // setup_mdns();
 
+    setup_tcp_listener();
+
     let c_str = unsafe { CStr::from_ptr(from) };
     let default = match c_str.to_str() {
         Err(_) => "",
         Ok(string) => string,
     };
+
+    let mut scanner = scanner::Scanner::new();
+    scanner.scan(default);
+
+    println!("{:?}", scanner.entries);
 
     let (tx, rx) = channel();
     let mut watcher = watcher(tx, Duration::from_secs(1)).unwrap();
@@ -204,27 +212,28 @@ pub extern "C" fn notify(from: *const c_char, obj: SwiftObject) {
             Err(e) => println!("watch error: {:?}", e),
         }
     }
-    
-    // setup_tcp_listener();
 }
 
 fn setup_mdns() {
 
 }
 
+//https://doc.rust-lang.org/book/ch20-01-single-threaded.html
 fn setup_tcp_listener() {
-    let listener = TcpListener::bind("0.0.0.0:8888").expect("Could not bind");
-    println!("listener {:?}", listener);
-    for stream in listener.incoming() {
-        match stream {
-            Err(e)=> {eprintln!("failed: {}", e)}
-            Ok(stream) => {
-                thread::spawn(move || {
-                    handle_client(stream).unwrap_or_else(|error| eprintln!("{:?}", error));
-                });
-            }
-        } 
-    }
+    std::thread::spawn(move || {
+        let listener = TcpListener::bind("0.0.0.0:8888").expect("Could not bind");
+        println!("listener {:?}", listener);
+        for stream in listener.incoming() {
+            match stream {
+                Err(e)=> {eprintln!("failed: {}", e)}
+                Ok(stream) => {
+                    thread::spawn(move || {
+                        handle_client(stream).unwrap_or_else(|error| eprintln!("{:?}", error));
+                    });
+                }
+            } 
+        }
+    });
 }
 
 fn handle_client(mut stream: TcpStream)-> Result<(), Error> {
