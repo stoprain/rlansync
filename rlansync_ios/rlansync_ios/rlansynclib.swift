@@ -8,22 +8,40 @@
 import Foundation
 import YNLib
 
-private class WrapClosure<T> {
-    fileprivate let closure: T
-    init(closure: T) {
-        self.closure = closure
+class SwiftObject {
+    deinit {
+        print("SwiftObject being deallocated")
+    }
+
+    func callbackWithArg(arg: String) {
+        print("SwiftObject: received callback with arg \(arg)")
+    }
+    
+    func sendToRust() {
+        let ownedPointer = UnsafeMutableRawPointer(Unmanaged.passRetained(self).toOpaque())
+        let wrapper = swift_object(
+            user: ownedPointer,
+            destory: destroy,
+            callback_with_arg: callback_with_arg)
+        notify(AppSandboxHelper.documentsPath.cString(using: .utf8)!, wrapper)
     }
 }
 
-public func RAsyncOperation(closure: @escaping (UnsafePointer<Int8>) -> Void) {
-    let wrappedClosure = WrapClosure(closure: closure)
-    let userdata = Unmanaged.passRetained(wrappedClosure).toOpaque()
+private func callback_with_arg(user: UnsafeMutableRawPointer?, arg: RustByteSlice) {
+    let obj: SwiftObject = Unmanaged.fromOpaque(user!).takeUnretainedValue()
+    obj.callbackWithArg(arg: arg.asString()!)
+}
 
-    let callback: @convention(c) (UnsafeMutableRawPointer, UnsafePointer<Int8>?) -> Void = { (_ userdata: UnsafeMutableRawPointer, _ success: UnsafePointer<Int8>?) in
-        let wrappedClosure: WrapClosure<(UnsafePointer<Int8>?) -> Void> = Unmanaged.fromOpaque(userdata).takeRetainedValue()
-        wrappedClosure.closure(success)
+private func destroy(user: UnsafeMutableRawPointer?) {
+    let _ = Unmanaged<SwiftObject>.fromOpaque(user!).takeRetainedValue()
+}
+
+extension RustByteSlice {
+    func asUnsafeBufferPointer() -> UnsafeBufferPointer<UInt8> {
+        return UnsafeBufferPointer(start: bytes, count: len)
     }
 
-    let completion = CompletedCallback(userdata: userdata, callback: callback)
-    notify(AppSandboxHelper.documentsPath.cString(using: .utf8)!, completion)
+    func asString(encoding: String.Encoding = .utf8) -> String? {
+        return String(bytes: asUnsafeBufferPointer(), encoding: encoding)
+    }
 }

@@ -7,13 +7,17 @@
 
 #import <Foundation/Foundation.h>
 
-int shipping_rust_addition(int a, int b);
+struct RustByteSlice {
+    const uint8_t *bytes;
+    size_t len;
+};
 
-typedef struct CompletedCallback {
-    void * _Nonnull userdata;
-    void (* _Nonnull callback)(void * _Nonnull, const char*);
-} CompletedCallback;
+struct swift_object {
+    void *user;
+    void (*destory)(void *user);
+    void (*callback_with_arg)(void *user, struct RustByteSlice arg);
+};
 
-void notify(const char* from, CompletedCallback callback);
+void notify(const char* from, struct swift_object object);
 
 #endif

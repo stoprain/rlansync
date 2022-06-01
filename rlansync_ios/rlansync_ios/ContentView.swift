@@ -12,6 +12,7 @@ struct ContentView: View {
     
     let sharedIdentifier = "group.com.stoprain.rlansync"
     
+    private var obj = SwiftObject()
     @State private var items = [SimpleShareItem]()
     @State private var toolbarLinkSelected = false
     @ObservedObject var observer = Observer()
@@ -54,21 +55,16 @@ struct ContentView: View {
         .onAppear {
             let _ = loadFromSuite()
             loadFromDocument()
+            
+            DispatchQueue.global().async {
+                obj.sendToRust()
+            }
         }
         .onReceive(observer.$enteredForeground) { _ in
             if loadFromSuite() {
                 loadFromDocument()
             }
         }
-//        Text("Hello, world! \(shipping_rust_addition(30, 1))")
-//            .padding()
-//            .onAppear {
-////                DispatchQueue.global().async {
-////                    RAsyncOperation { result in
-////                        print("RAsyncOperation \(String(cString: result))")
-////                    }
-////                }
-//            }
     }
     
     private func deleteItems(offsets: IndexSet) {
