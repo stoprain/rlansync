@@ -11,6 +11,7 @@ mdns-sd = "0.5.0"
 gethostname = "0.2.3"
 get_if_addrs = "0.5.3"
 substring = "1.4.5"
+libc = "0.2.126"
 
 [lib]
 crate-type = ["lib", "staticlib"]
