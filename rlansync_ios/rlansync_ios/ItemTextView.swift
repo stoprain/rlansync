@@ -24,16 +24,18 @@ struct ItemTextView: View {
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button("Save") {
                         let uuid = UUID().uuidString
-                        let filename = AppSandboxHelper.documentsPath + "/" + uuid + ".txt"
-                        try? profileText.write(toFile: filename, atomically: true, encoding: .utf8)
+                        let item = ShareItem(uuid: uuid, text: profileText, images: [])
+                        item.save()
                         mode.wrappedValue.dismiss()
                     }
                 }
             }
             .onAppear {
-                let url = URL(string: path)!
-                let s = try? String(contentsOf: url, encoding: .utf8)
-                profileText = s ?? ""
+                if path.count > 0 {
+                    let url = URL(string: path)!
+                    let s = try? String(contentsOf: url, encoding: .utf8)
+                    profileText = s ?? ""
+                }
             }
     }
 }
