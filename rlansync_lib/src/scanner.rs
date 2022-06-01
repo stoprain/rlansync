@@ -9,8 +9,8 @@ use data_encoding::HEXUPPER;
 use std::error::Error;
 
 pub struct Scanner {
-    entries: Vec<PathBuf>,
-    entries_hash: HashMap<PathBuf, (String)>,
+    pub entries: Vec<PathBuf>,
+    pub entries_hash: HashMap<PathBuf, (String)>,
 }
 
 impl Scanner {
@@ -38,8 +38,8 @@ impl Scanner {
             }
         }
 
-        println!("scanner scan \n");
-        println!("{:?}", self.entries_hash);
+        // println!("scanner scan \n");
+        // println!("{:?}", self.entries_hash);
     }
 }
 

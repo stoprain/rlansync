@@ -4,7 +4,7 @@ mod iohelper;
 // use std::io;
 // use std::fs::{self, DirEntry};
 // use std::path::Path;
-mod scanner;
+// mod scanner;
 
 // use std::any::Any;
 // use std::sync::{Arc, Mutex};
@@ -59,11 +59,16 @@ use std::{thread, time};
 */
 
 use rlansync_lib;
-use rlansync_lib::CompletedCallback;
+use rlansync_lib::SwiftObject;
+use rlansync_lib::strings;
 
 use std::os::raw::{c_void, c_char};
 
-extern "C" fn ccallback(userdata: *mut c_void, callback: *mut c_char) {
+extern "C" fn ccallback(user: *mut c_void, callback: strings::RustByteSlice) {
+
+}
+
+extern "C" fn destroy(user: *mut c_void) {
 
 }
 
@@ -72,42 +77,42 @@ use std::io::{Read, Write};
 use std::str::from_utf8;
 
 fn main() {
-    match TcpStream::connect("192.168.1.7:8888") {
-        Ok(mut stream) => {
-            println!("Successfully connected to server in port 3333");
+    // match TcpStream::connect("192.168.1.7:8888") {
+    //     Ok(mut stream) => {
+    //         println!("Successfully connected to server in port 3333");
 
-            let msg = b"Hello!";
+    //         let msg = b"Hello!";
 
-            stream.write(msg).unwrap();
-            println!("Sent Hello, awaiting reply...");
+    //         stream.write(msg).unwrap();
+    //         println!("Sent Hello, awaiting reply...");
 
-            let mut data = [0 as u8; 6]; // using 6 byte buffer
-            match stream.read_exact(&mut data) {
-                Ok(_) => {
-                    if &data == msg {
-                        println!("Reply is ok!");
-                    } else {
-                        let text = from_utf8(&data).unwrap();
-                        println!("Unexpected reply: {}", text);
-                    }
-                },
-                Err(e) => {
-                    println!("Failed to receive data: {}", e);
-                }
-            }
-        },
-        Err(e) => {
-            println!("Failed to connect: {}", e);
-        }
-    }
-    println!("Terminated.");
+    //         let mut data = [0 as u8; 6]; // using 6 byte buffer
+    //         match stream.read_exact(&mut data) {
+    //             Ok(_) => {
+    //                 if &data == msg {
+    //                     println!("Reply is ok!");
+    //                 } else {
+    //                     let text = from_utf8(&data).unwrap();
+    //                     println!("Unexpected reply: {}", text);
+    //                 }
+    //             },
+    //             Err(e) => {
+    //                 println!("Failed to receive data: {}", e);
+    //             }
+    //         }
+    //     },
+    //     Err(e) => {
+    //         println!("Failed to connect: {}", e);
+    //     }
+    // }
+    // println!("Terminated.");
     // let id = Uuid::new_v4();
     // println!("uuid = {}", id)
 
-    // let args: Vec<String> = env::args().collect();
-    // // // println!("{:?}", args)
-    // let filename = &args[1];
-    // // println!("Syncing {}", filename);
+    let args: Vec<String> = env::args().collect();
+    // // println!("{:?}", args)
+    let filename = &args[1];
+    // println!("Syncing {}", filename);
 
     // // iohelper::test(filename.to_string());
     // let mut scanner = scanner::Scanner::new();
@@ -116,13 +121,20 @@ fn main() {
     // let c = rlansync_lib::shipping_rust_addition(1, 2);
     // println!("result {:?}", c);
 
-    // let c = CompletedCallback {
-    //     userdata: 0 as *mut c_void,
-    //     callback: ccallback,
-    // };
+    // pub struct SwiftObject {
+    //     user: *mut c_void,
+    //     destroy: extern fn(user: *mut c_void),
+    //     callback_with_arg: extern fn(user: *mut c_void, arg: strings::RustByteSlice),
+    // }
 
-    // let a = filename.as_ptr() as *const c_char;
-    // rlansync_lib::notify(a, c);
+    let c = SwiftObject {
+        user: 0 as *mut c_void,
+        destroy: destroy,
+        callback_with_arg: ccallback,
+    };
+
+    let a = filename.as_ptr() as *const c_char;
+    rlansync_lib::notify(a, c);
 
     // let mut service = MdnsService::new(ServiceType::new("http", "tcp").unwrap(), 8080);
     // let mut txt_record = TxtRecord::new();
