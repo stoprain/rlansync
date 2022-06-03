@@ -7,17 +7,21 @@ use std::io::{BufReader, Read, Write};
 use ring::digest::{Context, Digest, SHA256};
 use data_encoding::HEXUPPER;
 use std::error::Error;
+use std::time::{SystemTime, UNIX_EPOCH};
+
 
 pub struct Scanner {
     pub entries: Vec<PathBuf>,
-    pub entries_hash: HashMap<PathBuf, (String)>,
+    pub entries_hash: HashMap<PathBuf, String>,
+    pub entries_modified: HashMap<PathBuf, u64>,
 }
 
 impl Scanner {
     pub fn new() -> Scanner {
         Scanner {
             entries: vec![],
-            entries_hash: HashMap::new()
+            entries_hash: HashMap::new(),
+            entries_modified: HashMap::new()
         }
     }
     pub fn scan(&mut self, pathbuf: &str) {
@@ -26,15 +30,19 @@ impl Scanner {
             // println!("is folder {} {:?}", is_folder, path);
             self.entries.push(pathbuf.clone());
             let pathbuf2 = pathbuf.clone();
+            let pathbuf3 = pathbuf.clone();
 
             if is_folder {
-                self.entries_hash.entry(pathbuf2).or_insert(("".to_owned()));
+                // self.entries_hash.entry(pathbuf2).or_insert("".to_owned());
             } else {
                 let path = pathbuf.into_os_string().into_string().unwrap();
                 let input = File::open(&path).unwrap();
                 let reader = BufReader::new(input);
                 let digest = sha256_digest(reader).unwrap();
-                self.entries_hash.entry(pathbuf2).or_insert((HEXUPPER.encode(digest.as_ref())));
+                self.entries_hash.entry(pathbuf2).or_insert(HEXUPPER.encode(digest.as_ref()));
+                let metadata = fs::metadata(path);
+                let secs = metadata.unwrap().modified().unwrap().duration_since(UNIX_EPOCH).unwrap().as_secs();
+                self.entries_modified.entry(pathbuf3).or_insert(secs);
             }
         }
 

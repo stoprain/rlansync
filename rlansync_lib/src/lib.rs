@@ -80,8 +80,20 @@ impl Drop for SwiftObjectWrapper {
 //     }
 // }
 
+mod protos;
+use protobuf::Message;
+use std::time::{SystemTime, UNIX_EPOCH};
+use std::sync::{Arc, Mutex};
+
+use protos::generated_with_pure::example::GetRequest;
+
 #[no_mangle]
 pub extern "C" fn notify(from: *const c_char, obj: SwiftObject) {
+
+    // let in_msg = GetRequest::parse_from_bytes(&out_bytes).unwrap();
+
+    // assert_eq!(in_msg.name, "test");
+
 // pub extern "C" fn notify(from: *const c_char, callback: SwiftObject) {
     // thread::spawn(move || {
     //     thread::sleep(Duration::from_secs(3));
@@ -169,8 +181,6 @@ pub extern "C" fn notify(from: *const c_char, obj: SwiftObject) {
 
     // setup_mdns();
 
-    setup_tcp_listener();
-
     let c_str = unsafe { CStr::from_ptr(from) };
     let default = match c_str.to_str() {
         Err(_) => "",
@@ -180,7 +190,14 @@ pub extern "C" fn notify(from: *const c_char, obj: SwiftObject) {
     let mut scanner = scanner::Scanner::new();
     scanner.scan(default);
 
-    println!("{:?}", scanner.entries);
+    let counter = Arc::new(Mutex::new(scanner));
+
+    setup_tcp_listener(counter);
+
+
+
+    // println!("{:?}", scanner.entries_modified);
+    // println!("{:?}", scanner.entries_hash);
 
     let (tx, rx) = channel();
     let mut watcher = watcher(tx, Duration::from_secs(1)).unwrap();
@@ -219,16 +236,18 @@ fn setup_mdns() {
 }
 
 //https://doc.rust-lang.org/book/ch20-01-single-threaded.html
-fn setup_tcp_listener() {
+fn setup_tcp_listener(mut scan: std::sync::Arc<std::sync::Mutex<scanner::Scanner>>) {
+    let counter = Arc::clone(&scan);
     std::thread::spawn(move || {
         let listener = TcpListener::bind("0.0.0.0:8888").expect("Could not bind");
         println!("listener {:?}", listener);
         for stream in listener.incoming() {
+            let counter1 = Arc::clone(&scan);
             match stream {
                 Err(e)=> {eprintln!("failed: {}", e)}
                 Ok(stream) => {
                     thread::spawn(move || {
-                        handle_client(stream).unwrap_or_else(|error| eprintln!("{:?}", error));
+                        handle_client(stream, counter1).unwrap_or_else(|error| eprintln!("{:?}", error));
                     });
                 }
             } 
@@ -236,8 +255,10 @@ fn setup_tcp_listener() {
     });
 }
 
-fn handle_client(mut stream: TcpStream)-> Result<(), Error> {
+fn handle_client(mut stream: TcpStream, mut scan: std::sync::Arc<std::sync::Mutex<scanner::Scanner>>)-> Result<(), Error> {
     println!("incoming connection from: {}", stream.peer_addr()?);
+    let mut num = scan.lock().unwrap();
+    println!("{:?}", num.entries_modified);
     let mut buf = [0;512];
     loop {
         let bytes_read = stream.read(&mut buf)?;
@@ -247,3 +268,10 @@ fn handle_client(mut stream: TcpStream)-> Result<(), Error> {
         stream.write(&buf[..bytes_read])?;
     }
 }
+
+/*
+
+< date
+> file list >= date
+
+*/
