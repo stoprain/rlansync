@@ -9,7 +9,6 @@ use data_encoding::HEXUPPER;
 use std::error::Error;
 use std::time::{SystemTime, UNIX_EPOCH};
 
-
 pub struct Scanner {
     pub entries: Vec<PathBuf>,
     pub entries_hash: HashMap<PathBuf, String>,

@@ -8,6 +8,7 @@ mod tests {
 }
 
 pub mod strings;
+pub mod server;
 pub mod scanner;
 
 use std::os::raw::c_void;
@@ -43,10 +44,6 @@ use mdns_sd::{ServiceDaemon, ServiceInfo, ServiceEvent};
 use std::collections::HashMap;
 use gethostname::gethostname;
 use substring::Substring;
-
-use std::net::{Shutdown,TcpListener, TcpStream};
-use std::thread;
-use std::io::{Read,Write,Error};
 use std::ops::Deref;
 
 #[repr(C)]
@@ -83,7 +80,7 @@ impl Drop for SwiftObjectWrapper {
 mod protos;
 use protobuf::Message;
 use std::time::{SystemTime, UNIX_EPOCH};
-use std::sync::{Arc, Mutex};
+
 
 use protos::generated_with_pure::example::GetRequest;
 
@@ -187,13 +184,8 @@ pub extern "C" fn notify(from: *const c_char, obj: SwiftObject) {
         Ok(string) => string,
     };
 
-    let mut scanner = scanner::Scanner::new();
-    scanner.scan(default);
-
-    let counter = Arc::new(Mutex::new(scanner));
-
-    setup_tcp_listener(counter);
-
+    // let server = server::Server::new();
+    // server.run(default);
 
 
     // println!("{:?}", scanner.entries_modified);
@@ -234,44 +226,3 @@ pub extern "C" fn notify(from: *const c_char, obj: SwiftObject) {
 fn setup_mdns() {
 
 }
-
-//https://doc.rust-lang.org/book/ch20-01-single-threaded.html
-fn setup_tcp_listener(mut scan: std::sync::Arc<std::sync::Mutex<scanner::Scanner>>) {
-    let counter = Arc::clone(&scan);
-    std::thread::spawn(move || {
-        let listener = TcpListener::bind("0.0.0.0:8888").expect("Could not bind");
-        println!("listener {:?}", listener);
-        for stream in listener.incoming() {
-            let counter1 = Arc::clone(&scan);
-            match stream {
-                Err(e)=> {eprintln!("failed: {}", e)}
-                Ok(stream) => {
-                    thread::spawn(move || {
-                        handle_client(stream, counter1).unwrap_or_else(|error| eprintln!("{:?}", error));
-                    });
-                }
-            } 
-        }
-    });
-}
-
-fn handle_client(mut stream: TcpStream, mut scan: std::sync::Arc<std::sync::Mutex<scanner::Scanner>>)-> Result<(), Error> {
-    println!("incoming connection from: {}", stream.peer_addr()?);
-    let mut num = scan.lock().unwrap();
-    println!("{:?}", num.entries_modified);
-    let mut buf = [0;512];
-    loop {
-        let bytes_read = stream.read(&mut buf)?;
-        if bytes_read == 0 {return Ok(())}
-        let tmp = format!("{}", String::from_utf8_lossy(&buf).trim());
-        eprintln!("getting {}",tmp);
-        stream.write(&buf[..bytes_read])?;
-    }
-}
-
-/*
-
-< date
-> file list >= date
-
-*/
