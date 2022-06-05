@@ -1,25 +1,66 @@
 syntax = "proto3";
 
-// import "google/protobuf/timestamp.proto";
+import "google/protobuf/any.proto";
+// https://developers.google.com/protocol-buffers/docs/proto3
+// https://stackoverflow.com/questions/40450556/how-to-know-which-protobuf-message-the-byte-array-is/50291651#50291651
+
+/*
+
+<GetRequest(FileInfoRequest)
+>GetResponse(FileInfoResponse)
+<GetRequest(FileDataRequest)
+>GetResponse(FileData)
+*/
 
 message GetRequest {
-  int64 from = 1;
+  google.protobuf.Any details = 1; // FileInfoRequest or FileDataRequest
   // string name = 1;
   // int32 age = 2;
   // repeated string features = 3;
 }
 
-message GetResponse {
-  int64 last = 1;
-  repeated string filenames = 2;
-  // enum Status {
-  //   OK = 0;
-  //   ERR = 1;
-  //   NOT_FOUND = 2;
-  // }
-  // Status status = 1;
-  // string address = 2;
-  // string city = 3;
-  // int32 zipcode = 4;
-  // google.protobuf.Timestamp ts = 5;
+message FileInfoRequest {
+  int64 from = 1;
 }
+
+message FileDataRequest {
+  string digest = 1;
+}
+
+message GetResponse {
+  google.protobuf.Any details = 1; // FileInfoResponse or FileDataResponse
+}
+
+message FileInfoResponse {
+  int64 from = 1;
+  repeated FileInfo fileInfos = 2;
+}
+
+message FileInfo {
+  enum Status {
+    CREATE = 0;
+    REMOVE = 1;
+  }
+  Status status = 1;
+  string path = 2;
+}
+
+message FileDataResponse {
+  string digest = 1;
+  bytes data = 2;
+}
+
+// message GetResponse {
+//   int64 last = 1;
+//   repeated string filenames = 2;
+//   // enum Status {
+//   //   OK = 0;
+//   //   ERR = 1;
+//   //   NOT_FOUND = 2;
+//   // }
+//   // Status status = 1;
+//   // string address = 2;
+//   // string city = 3;
+//   // int32 zipcode = 4;
+//   // google.protobuf.Timestamp ts = 5;
+// }

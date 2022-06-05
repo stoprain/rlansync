@@ -14,6 +14,7 @@ class SwiftObject {
     }
 
     func callbackWithArg(arg: String) {
+        NotificationCenter.default.post(name: NSNotification.Name("notify"), object: nil, userInfo: nil)
         print("SwiftObject: received callback with arg \(arg)")
     }
     

@@ -16,6 +16,7 @@ struct ContentView: View {
     @State private var items = [SimpleShareItem]()
     @State private var toolbarLinkSelected = false
     @ObservedObject var observer = Observer()
+    let pub = NotificationCenter.default.publisher(for: Notification.Name("notify"))
     
     var body: some View {
         NavigationView {
@@ -64,6 +65,9 @@ struct ContentView: View {
             if loadFromSuite() {
                 loadFromDocument()
             }
+        }
+        .onReceive(pub) { output in
+            loadFromDocument()
         }
     }
     
