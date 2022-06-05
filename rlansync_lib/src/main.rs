@@ -59,7 +59,7 @@ use std::{thread, time};
 */
 
 use rlansync_lib;
-use rlansync_lib::SwiftObject;
+use rlansync_lib::server::SwiftObject;
 use rlansync_lib::strings;
 
 use std::os::raw::{c_void, c_char};

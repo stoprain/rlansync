@@ -11,8 +11,6 @@ pub mod strings;
 pub mod server;
 pub mod scanner;
 
-use std::os::raw::c_void;
-
 // build for iOS
 // https://blog.mozilla.org/data/2022/01/31/this-week-in-glean-building-and-deploying-a-rust-library-on-ios/#fnref1
 // https://mozilla.github.io/firefox-browser-architecture/experiments/2017-09-06-rust-on-ios.html
@@ -35,41 +33,11 @@ use get_if_addrs::Ifv6Addr;
 // }
 
 // use std::thread;
-use std::time::Duration;
-use notify::{Watcher, RecursiveMode, watcher};
-use std::sync::mpsc::channel;
 
 // use local_ip_address::local_ip;
 use mdns_sd::{ServiceDaemon, ServiceInfo, ServiceEvent};
 use std::collections::HashMap;
 use gethostname::gethostname;
-use substring::Substring;
-use std::ops::Deref;
-
-#[repr(C)]
-pub struct SwiftObject {
-    pub user: *mut c_void,
-    pub destroy: extern fn(user: *mut c_void),
-    pub callback_with_arg: extern fn(user: *mut c_void, arg: strings::RustByteSlice),
-}
-
-unsafe impl Send for SwiftObject {}
-
-struct SwiftObjectWrapper(SwiftObject);
-
-impl Deref for SwiftObjectWrapper {
-    type Target = SwiftObject;
-
-    fn deref(&self) -> &SwiftObject {
-        &self.0
-    }
-}
-
-impl Drop for SwiftObjectWrapper {
-    fn drop(&mut self) {
-        (self.destroy)(self.user);
-    }
-}
 
 // impl Drop for CompletedCallback {
 //     fn drop(&mut self) {
@@ -81,15 +49,47 @@ mod protos;
 use protobuf::Message;
 use std::time::{SystemTime, UNIX_EPOCH};
 
-
-use protos::generated_with_pure::example::GetRequest;
+use protos::generated_with_pure::example::{GetRequest, FileInfoRequest, FileDataRequest};
+use protobuf::well_known_types::any::Any;
+use protobuf::MessageField;
+use server::SwiftObject;
 
 #[no_mangle]
 pub extern "C" fn notify(from: *const c_char, obj: SwiftObject) {
 
-    // let in_msg = GetRequest::parse_from_bytes(&out_bytes).unwrap();
+    let mut out_msg = FileInfoRequest::new();
+    out_msg.from = 12345;
 
-    // assert_eq!(in_msg.name, "test");
+    let mut outm = GetRequest::new();
+    outm.details = MessageField::some(Any::pack(&out_msg).unwrap());
+
+    let out_bytes: Vec<u8> = out_msg.write_to_bytes().unwrap();
+
+    let in_msg = GetRequest::parse_from_bytes(&out_bytes).unwrap();
+    if outm.details.is::<FileInfoRequest>() {
+        let request = outm.details.unpack::<FileInfoRequest>().unwrap().unwrap();
+        assert_eq!(request.from, 12345);
+        println!("{:?}", request)
+    }
+    // println!("in_msg {:?}", in_msg);
+    // let content = match in_msg.details {
+    //     MessageField(test) => println!("FileInfoRequest {:?}", test),
+    //     MessageField(FileDataRequest) => println!("FileDataRequest"),
+    // };
+    // assert_eq!(in_msg.from, 12345);
+    // println!("content {:?}", content);
+
+    let c_str = unsafe { CStr::from_ptr(from) };
+    let default = match c_str.to_str() {
+        Err(_) => "",
+        Ok(string) => string,
+    };
+
+    let mut server = server::Server::new();
+    server.run(default, obj);
+}
+
+fn setup_mdns() {
 
 // pub extern "C" fn notify(from: *const c_char, callback: SwiftObject) {
     // thread::spawn(move || {
@@ -177,52 +177,4 @@ pub extern "C" fn notify(from: *const c_char, obj: SwiftObject) {
 //     mdns.register(my_service).expect("Failed to register our service");
 
     // setup_mdns();
-
-    let c_str = unsafe { CStr::from_ptr(from) };
-    let default = match c_str.to_str() {
-        Err(_) => "",
-        Ok(string) => string,
-    };
-
-    // let server = server::Server::new();
-    // server.run(default);
-
-
-    // println!("{:?}", scanner.entries_modified);
-    // println!("{:?}", scanner.entries_hash);
-
-    let (tx, rx) = channel();
-    let mut watcher = watcher(tx, Duration::from_secs(1)).unwrap();
-    watcher.watch(default, RecursiveMode::Recursive).unwrap();
-    println!("watch {:?}", default);
-
-    // std::thread::spawn(move || {
-
-    // });
-
-    loop {
-        match rx.recv() {
-            Ok(event) => {
-                println!("{:?}", event);
-                match event {
-                    notify::DebouncedEvent::Remove(pathbuf) => {
-                        println!("Remove pathbuf {:?}", pathbuf);
-                    }
-                    notify::DebouncedEvent::Create(pathbuf) => {
-                        println!("Create pathbuf {:?}", pathbuf);
-                        let s = pathbuf.into_os_string().into_string().unwrap();
-                        (obj.callback_with_arg)(obj.user, strings::RustByteSlice::from(s.as_ref()));
-                    }
-                    _ => {
-
-                    }
-                }
-            },
-            Err(e) => println!("watch error: {:?}", e),
-        }
-    }
-}
-
-fn setup_mdns() {
-
 }
