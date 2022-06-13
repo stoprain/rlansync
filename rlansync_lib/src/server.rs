@@ -15,6 +15,10 @@ use std::ops::Deref;
 use crate::scanner;
 use crate::strings;
 
+#[cfg(test)]
+mod tests;
+
+
 //https://stackoverflow.com/questions/30677258/how-do-i-import-from-a-sibling-module
 pub struct Server {
 
@@ -91,15 +95,19 @@ fn setup_tcp_listener(scan: std::sync::Arc<std::sync::Mutex<scanner::Scanner>>) 
 fn handle_client(mut stream: TcpStream, counter: std::sync::Arc<std::sync::Mutex<scanner::Scanner>>)-> Result<(), Error> {
     println!("incoming connection from: {}", stream.peer_addr()?);
     let scanner = counter.lock().unwrap();
-    println!("{:?}", scanner.entries_modified);
-    let mut buf = [0;512];
-    loop {
-        let bytes_read = stream.read(&mut buf)?;
-        if bytes_read == 0 {return Ok(())}
-        let tmp = format!("{}", String::from_utf8_lossy(&buf).trim());
-        eprintln!("getting {}",tmp);
-        stream.write(&buf[..bytes_read])?;
+    let infos = &scanner.entries_info;
+    for (key, value) in infos.into_iter() {
+        println!("{} / {}", key, value);
     }
+    // let mut buf = [0;512];
+    // loop {
+    //     let bytes_read = stream.read(&mut buf)?;
+    //     if bytes_read == 0 {return Ok(())}
+    //     let tmp = format!("{}", String::from_utf8_lossy(&buf).trim());
+    //     eprintln!("getting {}",tmp);
+    //     stream.write(&buf[..bytes_read])?;
+    // }
+    Ok(())
 }
 
 #[repr(C)]

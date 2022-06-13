@@ -24,3 +24,11 @@ protobuf-codegen = "3.0.3"
 
 [lib]
 crate-type = ["lib", "staticlib"]
+
+[[bin]]
+name = "client"
+path = "src/client.rs"
+
+[[bin]]
+name = "server"
+path = "src/main.rs"
