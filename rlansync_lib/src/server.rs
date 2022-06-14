@@ -12,8 +12,16 @@ use std::os::raw::c_void;
 // use substring::Substring;
 use std::ops::Deref;
 
-use crate::scanner;
+use crate::{scanner, utils};
 use crate::strings;
+
+use crate::protos;
+use crate::utils::write_head_and_bytes;
+use protos::generated_with_pure::example::{FileInfoResponse, FileInfo, FileInfoRequest, GetRequest};
+use protos::generated_with_pure::example::file_info::Status;
+use protobuf::Message;
+use protobuf::well_known_types::any::Any;
+use protobuf::MessageField;
 
 #[cfg(test)]
 mod tests;
@@ -93,20 +101,28 @@ fn setup_tcp_listener(scan: std::sync::Arc<std::sync::Mutex<scanner::Scanner>>) 
 }
 
 fn handle_client(mut stream: TcpStream, counter: std::sync::Arc<std::sync::Mutex<scanner::Scanner>>)-> Result<(), Error> {
-    println!("incoming connection from: {}", stream.peer_addr()?);
-    let scanner = counter.lock().unwrap();
-    let infos = &scanner.entries_info;
-    for (key, value) in infos.into_iter() {
-        println!("{} / {}", key, value);
+
+    let payload = utils::read_head_and_bytes(&stream)?;
+    let req = GetRequest::parse_from_bytes(&payload).unwrap();
+    if req.details.is::<FileInfoRequest>() {
+        let request = req.details.unpack::<FileInfoRequest>().unwrap().unwrap();
+        println!("{:?}", request.from);
     }
-    // let mut buf = [0;512];
-    // loop {
-    //     let bytes_read = stream.read(&mut buf)?;
-    //     if bytes_read == 0 {return Ok(())}
-    //     let tmp = format!("{}", String::from_utf8_lossy(&buf).trim());
-    //     eprintln!("getting {}",tmp);
-    //     stream.write(&buf[..bytes_read])?;
+    // println!("incoming connection from: {}", stream.peer_addr()?);
+    // let scanner = counter.lock().unwrap();
+    // let infos = &scanner.entries_info;
+    // for (key, value) in infos.into_iter() {
+    //     println!("{} / {}", key, value);
     // }
+    // let mut res = FileInfoResponse::new();
+    // res.from = 12345;
+    // res.fileInfos = Vec::new();
+    // let mut info = FileInfo::new();
+    // info.path = "".to_owned();
+    // info.status = Status::CREATE.into();
+    // res.fileInfos.push(info);
+    // let out_bytes: Vec<u8> = res.write_to_bytes().unwrap();
+    // write_head_and_bytes(&stream, &out_bytes);
     Ok(())
 }
 

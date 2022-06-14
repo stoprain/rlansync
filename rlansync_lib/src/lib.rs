@@ -11,6 +11,7 @@ pub mod strings;
 pub mod server;
 pub mod scanner;
 mod protos;
+mod utils;
 
 // build for iOS
 // https://blog.mozilla.org/data/2022/01/31/this-week-in-glean-building-and-deploying-a-rust-library-on-ios/#fnref1

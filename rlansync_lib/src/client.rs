@@ -1,25 +1,27 @@
-use std::io;
-use std::io::{Read, Write};
+
+mod protos;
+mod utils;
+
 use std::net::TcpStream;
+use protobuf::Message;
+use protos::generated_with_pure::example::{GetRequest, FileInfoRequest, FileDataRequest};
+use protobuf::well_known_types::any::Any;
+use protobuf::MessageField;
 
 fn main() {
     let stream = TcpStream::connect("0.0.0.0:8888").unwrap();
-    let mut buf = [0;512];
-    write_head_and_bytes(&stream, &buf);
-}
 
-pub fn write_head_and_bytes(mut stream: &TcpStream, data: &[u8]) -> io::Result<()> {
-    let buffer = (data.len() as u32).to_be_bytes();
-    stream.write_all(&buffer)?;
-    stream.write_all(data)?;
-    Ok(())
-}
+    let mut out_msg = FileInfoRequest::new();
+    out_msg.from = 12345;
 
-pub fn read_head_and_bytes(mut stream: &TcpStream) -> io::Result<Vec<u8>> {
-    let mut buffer = [0u8; 4];
-    stream.read_exact(&mut buffer[..])?;
-    let size = u32::from_be_bytes(buffer);
-    let mut payload = vec![0; size as usize];
-    stream.read_exact(&mut payload[..])?;
-    Ok(payload)
+    let mut outm = GetRequest::new();
+    outm.details = MessageField::some(Any::pack(&out_msg).unwrap());
+
+    let out_bytes: Vec<u8> = outm.write_to_bytes().unwrap();
+
+    // let mut buf = [0;512];
+    utils::write_head_and_bytes(&stream, &out_bytes);
+
+    // let payload = utils::read_head_and_bytes(&stream).unwrap();
+    // println!("{:?}", payload)
 }
