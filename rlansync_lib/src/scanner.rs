@@ -10,9 +10,9 @@ use std::error::Error;
 use std::time::{SystemTime, UNIX_EPOCH};
 
 pub struct EntryInfo {
-    path: String,
-    digest: String,
-    modified: u64,
+    pub path: String,
+    pub digest: String,
+    pub modified: u64,
 }
 
 impl std::fmt::Display for EntryInfo {

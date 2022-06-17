@@ -17,7 +17,7 @@ use crate::strings;
 
 use crate::protos;
 use crate::utils::write_head_and_bytes;
-use protos::generated_with_pure::example::{FileInfoResponse, FileInfo, FileInfoRequest, GetRequest};
+use protos::generated_with_pure::example::{FileInfoResponse, FileInfo, FileInfoRequest, GetRequest, FileDataRequest};
 use protos::generated_with_pure::example::file_info::Status;
 use protobuf::Message;
 use protobuf::well_known_types::any::Any;
@@ -101,29 +101,48 @@ fn setup_tcp_listener(scan: std::sync::Arc<std::sync::Mutex<scanner::Scanner>>) 
 }
 
 fn handle_client(mut stream: TcpStream, counter: std::sync::Arc<std::sync::Mutex<scanner::Scanner>>)-> Result<(), Error> {
+    
+    println!("< incoming connection from: {}", stream.peer_addr()?);
 
-    let payload = utils::read_head_and_bytes(&stream)?;
-    let req = GetRequest::parse_from_bytes(&payload).unwrap();
-    if req.details.is::<FileInfoRequest>() {
-        let request = req.details.unpack::<FileInfoRequest>().unwrap().unwrap();
-        println!("{:?}", request.from);
+    loop {
+        let payload = utils::read_head_and_bytes(&stream);
+        let p = match payload {
+            Ok(v) => v,
+            Err(e) => break,
+        };
+        let req = GetRequest::parse_from_bytes(&p).unwrap();
+        println!("< GetRequest {:?}", req);
+        if req.details.is::<FileInfoRequest>() {
+            let request = req.details.unpack::<FileInfoRequest>().unwrap().unwrap();
+            println!("< FileInfoRequest from {:?}", request.from);
+
+            let mut res = FileInfoResponse::new();
+            res.from = request.from;
+            res.fileInfos = Vec::new();
+
+            let scanner = counter.lock().unwrap();
+            let infos = &scanner.entries_info;
+            for (_, value) in infos.into_iter() {
+                if value.modified as i64 > request.from {
+                    let mut info = FileInfo::new();
+                    info.path = value.path.to_owned();
+                    info.status = Status::CREATE.into();
+                    info.digest = value.digest.to_owned();
+                    res.fileInfos.push(info);
+                    res.from = value.modified as i64;
+                }
+            }
+
+            let out_bytes: Vec<u8> = res.write_to_bytes().unwrap();
+            write_head_and_bytes(&stream, &out_bytes);
+        } else if req.details.is::<FileDataRequest>() {
+            let request = req.details.unpack::<FileDataRequest>().unwrap().unwrap();
+            println!("< FileDataRequest digest {:?}", request.digest);
+        }
     }
-    // println!("incoming connection from: {}", stream.peer_addr()?);
-    // let scanner = counter.lock().unwrap();
-    // let infos = &scanner.entries_info;
-    // for (key, value) in infos.into_iter() {
-    //     println!("{} / {}", key, value);
-    // }
-    // let mut res = FileInfoResponse::new();
-    // res.from = 12345;
-    // res.fileInfos = Vec::new();
-    // let mut info = FileInfo::new();
-    // info.path = "".to_owned();
-    // info.status = Status::CREATE.into();
-    // res.fileInfos.push(info);
-    // let out_bytes: Vec<u8> = res.write_to_bytes().unwrap();
-    // write_head_and_bytes(&stream, &out_bytes);
-    Ok(())
+
+    println!("# disconnect from: {}", stream.peer_addr()?);
+    return Ok(());
 }
 
 #[repr(C)]
