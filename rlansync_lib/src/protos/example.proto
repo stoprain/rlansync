@@ -43,6 +43,7 @@ message FileInfo {
   }
   Status status = 1;
   string path = 2;
+  string digest = 3;
 }
 
 message FileDataResponse {
