@@ -24,17 +24,20 @@ impl std::fmt::Display for EntryInfo {
 pub struct Scanner {
     pub entries: Vec<String>,
     pub entries_info: HashMap<String, EntryInfo>,
+    pub root: String,
 }
 
 impl Scanner {
     pub fn new() -> Scanner {
         Scanner {
             entries: vec![],
-            entries_info: HashMap::new()
+            entries_info: HashMap::new(),
+            root: "".to_string(),
         }
     }
-    pub fn scan(&mut self, pathbuf: &str) {
-        let mut iter = FileIteratror::from(pathbuf);
+    pub fn scan(&mut self, parentPathbuf: &str) {
+        self.root = parentPathbuf.to_string();
+        let mut iter = FileIteratror::from(parentPathbuf);
         while let Some((pathbuf, is_folder)) = iter.next() {
             // println!("is folder {} {:?}", is_folder, path);
             let string = pathbuf.into_os_string().into_string().unwrap();
@@ -51,7 +54,7 @@ impl Scanner {
                 let metadata = fs::metadata(string.to_owned());
                 let secs = metadata.unwrap().modified().unwrap().duration_since(UNIX_EPOCH).unwrap().as_secs();
                 let entry = EntryInfo {
-                    path: string.to_owned(),
+                    path: string.replace(&self.root, ""),
                     digest: digest_string,
                     modified: secs
                 };
