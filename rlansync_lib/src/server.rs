@@ -17,11 +17,13 @@ use crate::strings;
 
 use crate::protos;
 use crate::utils::write_head_and_bytes;
-use protos::generated_with_pure::example::{FileInfoResponse, FileInfo, FileInfoRequest, GetRequest, FileDataRequest};
+use protos::generated_with_pure::example::{FileInfoResponse, FileInfo, FileInfoRequest, GetRequest, FileDataRequest, FileDataResponse};
 use protos::generated_with_pure::example::file_info::Status;
 use protobuf::Message;
 use protobuf::well_known_types::any::Any;
 use protobuf::MessageField;
+use std::fs::File;
+use std::fs;
 
 #[cfg(test)]
 mod tests;
@@ -37,6 +39,45 @@ impl Server {
     pub fn new() -> Self {
         Server {
 
+        }
+    }
+
+    pub fn pull(&mut self, pathbuf: &str, addr: &str, obj: SwiftObject) {
+        let stream = TcpStream::connect(addr).unwrap();
+
+        let mut out_msg = FileInfoRequest::new();
+        out_msg.from = 0;
+    
+        let mut outm = GetRequest::new();
+        outm.details = MessageField::some(Any::pack(&out_msg).unwrap());
+    
+        let out_bytes: Vec<u8> = outm.write_to_bytes().unwrap();
+        
+        utils::write_head_and_bytes(&stream, &out_bytes);
+
+        let payload = utils::read_head_and_bytes(&stream).unwrap();
+        let res = FileInfoResponse::parse_from_bytes(&payload).unwrap();
+    
+        for value in res.fileInfos.into_iter() {
+            let first = value;
+    
+            let mut out_msg = FileDataRequest::new();
+            out_msg.digest = first.digest.to_owned();
+    
+            let mut outm = GetRequest::new();
+            outm.details = MessageField::some(Any::pack(&out_msg).unwrap());
+    
+            let out_bytes: Vec<u8> = outm.write_to_bytes().unwrap();
+    
+            println!("> FileDataRequest digest {:?}", out_msg.digest);
+            utils::write_head_and_bytes(&stream, &out_bytes);
+    
+            let payload = utils::read_head_and_bytes(&stream).unwrap();
+            let res = FileDataResponse::parse_from_bytes(&payload).unwrap();
+    
+            let s = pathbuf.to_string() + &first.path;
+            println!("write to path {:?}", s);
+            fs::write(s, res.data);
         }
     }
 
@@ -138,6 +179,27 @@ fn handle_client(mut stream: TcpStream, counter: std::sync::Arc<std::sync::Mutex
         } else if req.details.is::<FileDataRequest>() {
             let request = req.details.unpack::<FileDataRequest>().unwrap().unwrap();
             println!("< FileDataRequest digest {:?}", request.digest);
+
+            let mut res = FileDataResponse::new();
+            res.digest = request.digest.to_owned();
+
+            let scanner = counter.lock().unwrap();
+            let infos = &scanner.entries_info;
+            for (_, value) in infos.into_iter() {
+                if value.digest == request.digest {
+                    // let s = scanner.root.push_str(value.path.to_string());
+                    let s = scanner.root.to_owned() + &value.path;
+                    let mut f = File::open(s).expect("no file found");
+                    let metadata = File::metadata(&f).expect("unable to read metadata");
+                    let mut buffer = vec![0; metadata.len() as usize];
+                    f.read(&mut buffer).expect("buffer overflow");
+                    res.data = buffer;
+                    break
+                }
+            }
+
+            let out_bytes: Vec<u8> = res.write_to_bytes().unwrap();
+            write_head_and_bytes(&stream, &out_bytes);
         }
     }
 
