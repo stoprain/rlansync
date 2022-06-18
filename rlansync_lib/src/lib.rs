@@ -60,8 +60,8 @@ pub extern "C" fn notify(from: *const c_char, obj: SwiftObject) {
         Ok(string) => string,
     };
 
-    let mut server = server::Server::new();
-    server.run(default, obj);
+    let mut server = server::Server::new(default.to_string());
+    server.run(obj);
 }
 
 #[no_mangle]
@@ -78,8 +78,6 @@ pub extern "C" fn pull(from: *const c_char, addr: *const c_char, obj: SwiftObjec
         Ok(string) => string,
     };
 
-    let mut server = server::Server::new();
-    println!("{:?}", default);
-    println!("{:?}", defaultaddr);
-    server.pull(default, defaultaddr, obj);
+    let mut server = server::Server::new(default.to_string());
+    server.pull(defaultaddr, obj);
 }
