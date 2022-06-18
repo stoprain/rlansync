@@ -24,6 +24,7 @@ use protobuf::well_known_types::any::Any;
 use protobuf::MessageField;
 use std::fs::File;
 use std::fs;
+use std::sync::MutexGuard;
 
 #[cfg(test)]
 mod tests;
@@ -31,18 +32,21 @@ mod tests;
 
 //https://stackoverflow.com/questions/30677258/how-do-i-import-from-a-sibling-module
 pub struct Server {
-
+    pub root: String,
 }
 
 impl Server {
 
-    pub fn new() -> Self {
+    pub fn new(root: String) -> Self {
         Server {
-
+            root
         }
     }
 
-    pub fn pull(&mut self, pathbuf: &str, addr: &str, obj: SwiftObject) {
+    pub fn pull(&mut self, addr: &str, obj: SwiftObject) {
+        let mut scanner = scanner::Scanner::new();
+        scanner.scan(&self.root);
+        
         let stream = TcpStream::connect(addr).unwrap();
 
         let mut out_msg = FileInfoRequest::new();
@@ -75,24 +79,23 @@ impl Server {
             let payload = utils::read_head_and_bytes(&stream).unwrap();
             let res = FileDataResponse::parse_from_bytes(&payload).unwrap();
     
-            let s = pathbuf.to_string() + &first.path;
+            let s = self.root.to_owned() + &first.path;
             println!("write to path {:?}", s);
             fs::write(s, res.data);
         }
     }
 
-    pub fn run(&mut self, pathbuf: &str, obj: SwiftObject) {    
+    pub fn run(&mut self, obj: SwiftObject) {
         let mut scanner = scanner::Scanner::new();
-        scanner.scan(pathbuf);
+        scanner.scan(&self.root);
 
         let counter = Arc::new(Mutex::new(scanner));
-
-        setup_tcp_listener(counter);
+        setup_tcp_listener(counter.clone());
 
         let (tx, rx) = channel();
         let mut watcher = watcher(tx, Duration::from_secs(1)).unwrap();
-        watcher.watch(pathbuf, RecursiveMode::Recursive).unwrap();
-        println!("watch {:?}", pathbuf);
+        watcher.watch(self.root.to_owned(), RecursiveMode::Recursive).unwrap();
+        println!("watch {:?}", self.root);
     
         // std::thread::spawn(move || {
     
@@ -123,15 +126,15 @@ impl Server {
 }
 
 //https://doc.rust-lang.org/book/ch20-01-single-threaded.html
-fn setup_tcp_listener(scan: std::sync::Arc<std::sync::Mutex<scanner::Scanner>>) {
+fn setup_tcp_listener(counter: Arc<Mutex<scanner::Scanner>>) {
     std::thread::spawn(move || {
         let listener = TcpListener::bind("0.0.0.0:8888").expect("Could not bind");
         println!("listener {:?}", listener);
         for stream in listener.incoming() {
-            let counter = Arc::clone(&scan);
             match stream {
                 Err(e)=> {eprintln!("failed: {}", e)}
                 Ok(stream) => {
+                    let counter = Arc::clone(&counter);
                     thread::spawn(move || {
                         handle_client(stream, counter).unwrap_or_else(|error| eprintln!("{:?}", error));
                     });
@@ -141,11 +144,13 @@ fn setup_tcp_listener(scan: std::sync::Arc<std::sync::Mutex<scanner::Scanner>>) 
     });
 }
 
-fn handle_client(mut stream: TcpStream, counter: std::sync::Arc<std::sync::Mutex<scanner::Scanner>>)-> Result<(), Error> {
+fn handle_client(mut stream: TcpStream, counter: Arc<Mutex<scanner::Scanner>>)-> Result<(), Error> {
     
     println!("< incoming connection from: {}", stream.peer_addr()?);
 
     loop {
+        let scanner = counter.lock().unwrap();
+
         let payload = utils::read_head_and_bytes(&stream);
         let p = match payload {
             Ok(v) => v,
@@ -161,7 +166,6 @@ fn handle_client(mut stream: TcpStream, counter: std::sync::Arc<std::sync::Mutex
             res.from = request.from;
             res.fileInfos = Vec::new();
 
-            let scanner = counter.lock().unwrap();
             let infos = &scanner.entries_info;
             for (_, value) in infos.into_iter() {
                 if value.modified as i64 > request.from {
@@ -182,8 +186,7 @@ fn handle_client(mut stream: TcpStream, counter: std::sync::Arc<std::sync::Mutex
 
             let mut res = FileDataResponse::new();
             res.digest = request.digest.to_owned();
-
-            let scanner = counter.lock().unwrap();
+            
             let infos = &scanner.entries_info;
             for (_, value) in infos.into_iter() {
                 if value.digest == request.digest {
