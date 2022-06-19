@@ -25,6 +25,7 @@ use protobuf::MessageField;
 use std::fs::File;
 use std::fs;
 use std::sync::MutexGuard;
+use std::path::Path;
 
 #[cfg(test)]
 mod tests;
@@ -106,6 +107,10 @@ impl Server {
             let res = FileDataResponse::parse_from_bytes(&payload).unwrap();
     
             println!("write to path {:?}", s);
+
+            let path = Path::new(&s);
+            let dir = path.parent().unwrap();
+            fs::create_dir_all(dir);
             fs::write(s, res.data);
         }
     }
