@@ -64,6 +64,32 @@ impl Server {
     
         for value in res.fileInfos.into_iter() {
             let first = value;
+
+            let infos = &scanner.entries_info;
+            let mut isExist = false;
+            let mut existPath = "".to_owned();
+            for (_, value) in infos.into_iter() {
+                if value.digest == first.digest {
+                    if value.path == first.path {
+                        isExist = true;
+                        break;
+                    } else {
+                        existPath = value.path.to_owned();
+                    }
+                }
+            }
+
+            let s = self.root.to_owned() + &first.path;
+
+            if isExist {
+                println!("> already exist {:?}", s);
+                continue;
+            } else if existPath.len() > 0 {
+                let ss =  self.root.to_owned() + &existPath;
+                println!("> move {:?} > {:?}", ss, s);
+                fs::copy(ss, s);
+                continue;
+            }
     
             let mut out_msg = FileDataRequest::new();
             out_msg.digest = first.digest.to_owned();
@@ -79,7 +105,6 @@ impl Server {
             let payload = utils::read_head_and_bytes(&stream).unwrap();
             let res = FileDataResponse::parse_from_bytes(&payload).unwrap();
     
-            let s = self.root.to_owned() + &first.path;
             println!("write to path {:?}", s);
             fs::write(s, res.data);
         }
