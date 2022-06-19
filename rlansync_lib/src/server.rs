@@ -3,7 +3,7 @@
 
 use std::sync::{Arc, Mutex};
 use std::net::{TcpListener, TcpStream};
-use std::io::{Read, Write, Error};
+use std::io::{Read, Error};
 use std::thread;
 use std::time::Duration;
 use notify::{Watcher, RecursiveMode, watcher};
@@ -24,7 +24,6 @@ use protobuf::well_known_types::any::Any;
 use protobuf::MessageField;
 use std::fs::File;
 use std::fs;
-use std::sync::MutexGuard;
 use std::path::Path;
 
 #[cfg(test)]
@@ -44,7 +43,7 @@ impl Server {
         }
     }
 
-    pub fn pull(&mut self, addr: &str, obj: SwiftObject) {
+    pub fn pull(&mut self, addr: &str, _: SwiftObject) {
         let mut scanner = scanner::Scanner::new();
         scanner.scan(&self.root);
         
@@ -58,7 +57,7 @@ impl Server {
     
         let out_bytes: Vec<u8> = outm.write_to_bytes().unwrap();
         
-        utils::write_head_and_bytes(&stream, &out_bytes);
+        utils::write_head_and_bytes(&stream, &out_bytes).unwrap();
 
         let payload = utils::read_head_and_bytes(&stream).unwrap();
         let res = FileInfoResponse::parse_from_bytes(&payload).unwrap();
@@ -67,28 +66,28 @@ impl Server {
             let first = value;
 
             let infos = &scanner.entries_info;
-            let mut isExist = false;
-            let mut existPath = "".to_owned();
+            let mut is_exist = false;
+            let mut exist_path = "".to_owned();
             for (_, value) in infos.into_iter() {
                 if value.digest == first.digest {
                     if value.path == first.path {
-                        isExist = true;
+                        is_exist = true;
                         break;
                     } else {
-                        existPath = value.path.to_owned();
+                        exist_path = value.path.to_owned();
                     }
                 }
             }
 
             let s = self.root.to_owned() + &first.path;
 
-            if isExist {
+            if is_exist {
                 println!("> already exist {:?}", s);
                 continue;
-            } else if existPath.len() > 0 {
-                let ss =  self.root.to_owned() + &existPath;
+            } else if exist_path.len() > 0 {
+                let ss =  self.root.to_owned() + &exist_path;
                 println!("> move {:?} > {:?}", ss, s);
-                fs::copy(ss, s);
+                fs::copy(ss, s).unwrap();
                 continue;
             }
     
@@ -101,7 +100,7 @@ impl Server {
             let out_bytes: Vec<u8> = outm.write_to_bytes().unwrap();
     
             println!("> FileDataRequest digest {:?}", out_msg.digest);
-            utils::write_head_and_bytes(&stream, &out_bytes);
+            utils::write_head_and_bytes(&stream, &out_bytes).unwrap();
     
             let payload = utils::read_head_and_bytes(&stream).unwrap();
             let res = FileDataResponse::parse_from_bytes(&payload).unwrap();
@@ -110,8 +109,8 @@ impl Server {
 
             let path = Path::new(&s);
             let dir = path.parent().unwrap();
-            fs::create_dir_all(dir);
-            fs::write(s, res.data);
+            fs::create_dir_all(dir).unwrap();
+            fs::write(s, res.data).unwrap();
         }
     }
 
@@ -174,7 +173,7 @@ fn setup_tcp_listener(counter: Arc<Mutex<scanner::Scanner>>) {
     });
 }
 
-fn handle_client(mut stream: TcpStream, counter: Arc<Mutex<scanner::Scanner>>)-> Result<(), Error> {
+fn handle_client(stream: TcpStream, counter: Arc<Mutex<scanner::Scanner>>)-> Result<(), Error> {
     
     println!("< incoming connection from: {}", stream.peer_addr()?);
 
@@ -184,7 +183,7 @@ fn handle_client(mut stream: TcpStream, counter: Arc<Mutex<scanner::Scanner>>)->
         let payload = utils::read_head_and_bytes(&stream);
         let p = match payload {
             Ok(v) => v,
-            Err(e) => break,
+            Err(_) => break,
         };
         let req = GetRequest::parse_from_bytes(&p).unwrap();
         println!("< GetRequest {:?}", req);
@@ -209,7 +208,7 @@ fn handle_client(mut stream: TcpStream, counter: Arc<Mutex<scanner::Scanner>>)->
             }
 
             let out_bytes: Vec<u8> = res.write_to_bytes().unwrap();
-            write_head_and_bytes(&stream, &out_bytes);
+            write_head_and_bytes(&stream, &out_bytes).unwrap();
         } else if req.details.is::<FileDataRequest>() {
             let request = req.details.unpack::<FileDataRequest>().unwrap().unwrap();
             println!("< FileDataRequest digest {:?}", request.digest);
@@ -232,7 +231,7 @@ fn handle_client(mut stream: TcpStream, counter: Arc<Mutex<scanner::Scanner>>)->
             }
 
             let out_bytes: Vec<u8> = res.write_to_bytes().unwrap();
-            write_head_and_bytes(&stream, &out_bytes);
+            write_head_and_bytes(&stream, &out_bytes).unwrap();
         }
     }
 

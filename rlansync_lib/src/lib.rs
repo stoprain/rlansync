@@ -20,9 +20,9 @@ mod utils;
 //https://bignerdranch.com/blog/building-an-ios-app-in-rust-part-2-passing-primitive-data-between-rust-and-ios/
 
 use std::os::raw::{c_char};
-use std::ffi::{CString, CStr};
-use get_if_addrs::IfAddr::{V4, V6};
-use get_if_addrs::Ifv6Addr;
+use std::ffi::{CStr};
+// use get_if_addrs::IfAddr::{V4, V6};
+// use get_if_addrs::Ifv6Addr;
 // #[no_mangle]
 // pub extern "C" fn notify(from: *const c_char) {
 //     let c_str = unsafe { CStr::from_ptr(from) };
@@ -37,9 +37,9 @@ use get_if_addrs::Ifv6Addr;
 // use std::thread;
 
 // use local_ip_address::local_ip;
-use mdns_sd::{ServiceDaemon, ServiceInfo, ServiceEvent};
-use std::collections::HashMap;
-use gethostname::gethostname;
+// use mdns_sd::{ServiceDaemon, ServiceInfo, ServiceEvent};
+// use std::collections::HashMap;
+// use gethostname::gethostname;
 
 // impl Drop for CompletedCallback {
 //     fn drop(&mut self) {
@@ -47,7 +47,7 @@ use gethostname::gethostname;
 //     }
 // }
 
-use std::time::{SystemTime, UNIX_EPOCH};
+// use std::time::{SystemTime, UNIX_EPOCH};
 
 
 use server::SwiftObject;

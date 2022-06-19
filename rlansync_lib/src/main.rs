@@ -1,5 +1,4 @@
 use std::env;
-mod iohelper;
 
 // use std::io;
 // use std::fs::{self, DirEntry};
@@ -18,11 +17,11 @@ mod iohelper;
 // use zeroconf::prelude::*;
 // use zeroconf::{MdnsBrowser, ServiceDiscovery, ServiceType};
 
-use std::ffi::CString;
+// use std::ffi::CString;
 // use simple_mdns::ServiceDiscovery;
 // use std::net::SocketAddr;
 // use std::str::FromStr;
-use std::{thread, time};
+// use std::{thread, time};
 // use mdns_sd::{ServiceDaemon, ServiceInfo};
 // use std::collections::HashMap;
 
@@ -64,17 +63,17 @@ use rlansync_lib::strings;
 
 use std::os::raw::{c_void, c_char};
 
-extern "C" fn ccallback(user: *mut c_void, callback: strings::RustByteSlice) {
+extern "C" fn ccallback(_: *mut c_void, _: strings::RustByteSlice) {
 
 }
 
-extern "C" fn destroy(user: *mut c_void) {
+extern "C" fn destroy(_: *mut c_void) {
 
 }
 
-use std::net::{TcpStream};
-use std::io::{Read, Write};
-use std::str::from_utf8;
+// use std::net::{TcpStream};
+// use std::io::{Read, Write};
+// use std::str::from_utf8;
 
 fn main() {
     // match TcpStream::connect("192.168.1.7:8888") {

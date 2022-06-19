@@ -16,11 +16,11 @@ use rlansync_lib::server::SwiftObject;
 use rlansync_lib::strings;
 use std::os::raw::{c_void, c_char};
 
-extern "C" fn ccallback(user: *mut c_void, callback: strings::RustByteSlice) {
+extern "C" fn ccallback(_: *mut c_void, _: strings::RustByteSlice) {
 
 }
 
-extern "C" fn destroy(user: *mut c_void) {
+extern "C" fn destroy(_: *mut c_void) {
 
 }
 
