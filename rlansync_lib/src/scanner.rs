@@ -3,11 +3,11 @@ use std::fs::ReadDir;
 use std::fs;
 use std::collections::HashMap;
 use std::fs::File;
-use std::io::{BufReader, Read, Write};
+use std::io::{BufReader, Read};
 use ring::digest::{Context, Digest, SHA256};
 use data_encoding::HEXUPPER;
 use std::error::Error;
-use std::time::{SystemTime, UNIX_EPOCH};
+use std::time::{UNIX_EPOCH};
 
 pub struct EntryInfo {
     pub path: String,
@@ -20,6 +20,10 @@ impl std::fmt::Display for EntryInfo {
         write!(f, "(value path: {}, value digest: {}, value modified: {})", self.path, self.digest, self.modified)
     }
 }
+
+const IGNORE_FILES: [&'static str; 1] = [
+    ".DS_Store"
+];
 
 pub struct Scanner {
     pub entries: Vec<String>,
@@ -35,17 +39,22 @@ impl Scanner {
             root: "".to_string(),
         }
     }
-    pub fn scan(&mut self, parentPathbuf: &str) {
-        self.root = parentPathbuf.to_string();
-        let mut iter = FileIteratror::from(parentPathbuf);
+    pub fn scan(&mut self, parent_pathbuf: &str) {
+        self.root = parent_pathbuf.to_string();
+        let mut iter = FileIteratror::from(parent_pathbuf);
         while let Some((pathbuf, is_folder)) = iter.next() {
             // println!("is folder {} {:?}", is_folder, path);
-            let string = pathbuf.into_os_string().into_string().unwrap();
+            let ss = pathbuf.file_name().to_owned();
+            let string = pathbuf.to_owned().into_os_string().into_string().unwrap();
             self.entries.push(string.to_owned());
 
             if is_folder {
                 // self.entries_hash.entry(pathbuf2).or_insert("".to_owned());
             } else {
+                let str = ss.unwrap().to_str().unwrap();
+                if IGNORE_FILES.contains(&str) {
+                    continue;
+                }
                 // let path = pathbuf.into_os_string().into_string().unwrap();
                 let input = File::open(&string).unwrap();
                 let reader = BufReader::new(input);

@@ -3,7 +3,7 @@ mod tests {
 
     use crate::protos;
     use protobuf::Message;
-    use protos::generated_with_pure::example::{GetRequest, FileInfoRequest, FileDataRequest};
+    use protos::generated_with_pure::example::{GetRequest, FileInfoRequest};
     use protobuf::well_known_types::any::Any;
     use protobuf::MessageField;
 
@@ -17,7 +17,7 @@ mod tests {
     
         let out_bytes: Vec<u8> = out_msg.write_to_bytes().unwrap();
     
-        let in_msg = GetRequest::parse_from_bytes(&out_bytes).unwrap();
+        let _ = GetRequest::parse_from_bytes(&out_bytes).unwrap();
 
         assert!(outm.details.is::<FileInfoRequest>());
         if outm.details.is::<FileInfoRequest>() {
