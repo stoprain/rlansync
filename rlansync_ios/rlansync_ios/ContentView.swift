@@ -25,6 +25,8 @@ struct ContentView: View {
                     NavigationLink {
                         if item.url.absoluteString.contains(".txt") {
                             ItemTextView(path: item.url.absoluteString)
+                        } else if item.url.absoluteString.contains(".png") {
+                            ItemImageView(path: item.url.absoluteString)
                         } else {
                             ItemDirectoryView(path: item.url.absoluteString)
                         }
@@ -36,10 +38,11 @@ struct ContentView: View {
             }
             .listStyle(.plain)
             .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
+                ToolbarItemGroup(placement: .bottomBar) {
+                    Button(action: pullItem) {
+                        Label("Pull", systemImage: "arrow.triangle.2.circlepath")
+                    }
                     EditButton()
-                }
-                ToolbarItem {
                     Button(action: addItem) {
                         Label("Add Item", systemImage: "plus")
                     }
@@ -140,6 +143,12 @@ struct ContentView: View {
     
     private func addItem() {
         toolbarLinkSelected = true
+    }
+    
+    private func pullItem() {
+        DispatchQueue.global().async {
+            obj.pullFromRust()
+        }
     }
     
     private let itemFormatter: DateFormatter = {

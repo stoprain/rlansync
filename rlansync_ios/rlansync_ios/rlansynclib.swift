@@ -26,6 +26,16 @@ class SwiftObject {
             callback_with_arg: callback_with_arg)
         notify(AppSandboxHelper.documentsPath.cString(using: .utf8)!, wrapper)
     }
+    
+    func pullFromRust() {
+        let ownedPointer = UnsafeMutableRawPointer(Unmanaged.passRetained(self).toOpaque())
+        let wrapper = swift_object(
+            user: ownedPointer,
+            destory: destroy,
+            callback_with_arg: callback_with_arg)
+        //TODO set target addr
+        pull(AppSandboxHelper.documentsPath.cString(using: .utf8)!, "0.0.0.0:8888".cString(using: .utf8)!, wrapper)
+    }
 }
 
 private func callback_with_arg(user: UnsafeMutableRawPointer?, arg: RustByteSlice) {

@@ -22,6 +22,7 @@
 		B45B826B28327D05008D6DAB /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B45B826A28327D05008D6DAB /* Assets.xcassets */; };
 		B45B826E28327D05008D6DAB /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B45B826D28327D05008D6DAB /* Preview Assets.xcassets */; };
 		B45B827E28327FB7008D6DAB /* librlansync_lib.a in Frameworks */ = {isa = PBXBuildFile; fileRef = B45B827728327F0B008D6DAB /* librlansync_lib.a */; };
+		B46347A6285F1EE700EBF9AC /* ItemImageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B46347A5285F1EE700EBF9AC /* ItemImageView.swift */; };
 		B4DF483928437D4900D5B57C /* ItemTextView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4DF483828437D4900D5B57C /* ItemTextView.swift */; };
 /* End PBXBuildFile section */
 
@@ -71,6 +72,7 @@
 		B45B827728327F0B008D6DAB /* librlansync_lib.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = librlansync_lib.a; path = ../rlansync_lib/target/universal/release/librlansync_lib.a; sourceTree = "<group>"; };
 		B45B827928327F19008D6DAB /* rlansync_ios-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "rlansync_ios-Bridging-Header.h"; sourceTree = "<group>"; };
 		B45B827B28327F6D008D6DAB /* libresolv.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libresolv.tbd; path = usr/lib/libresolv.tbd; sourceTree = SDKROOT; };
+		B46347A5285F1EE700EBF9AC /* ItemImageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ItemImageView.swift; sourceTree = "<group>"; };
 		B4DF483828437D4900D5B57C /* ItemTextView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ItemTextView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -141,6 +143,7 @@
 				B43164DF2845097D00BC5EA8 /* ItemDirectoryView.swift */,
 				B43164E12845158900BC5EA8 /* DetailView.swift */,
 				B43164E3284515E500BC5EA8 /* GridItemView.swift */,
+				B46347A5285F1EE700EBF9AC /* ItemImageView.swift */,
 			);
 			path = rlansync_ios;
 			sourceTree = "<group>";
@@ -288,6 +291,7 @@
 				B43164E02845097D00BC5EA8 /* ItemDirectoryView.swift in Sources */,
 				B43164E4284515E500BC5EA8 /* GridItemView.swift in Sources */,
 				B45B826728327D03008D6DAB /* rlansync_iosApp.swift in Sources */,
+				B46347A6285F1EE700EBF9AC /* ItemImageView.swift in Sources */,
 				B44EA15A283682200080D490 /* rlansynclib.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
