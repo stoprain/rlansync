@@ -34,7 +34,8 @@ class SwiftObject {
             destory: destroy,
             callback_with_arg: callback_with_arg)
         //TODO set target addr
-        pull(AppSandboxHelper.documentsPath.cString(using: .utf8)!, "0.0.0.0:8888".cString(using: .utf8)!, wrapper)
+        //pull(AppSandboxHelper.documentsPath.cString(using: .utf8)!, "192.168.1.4:8888".cString(using: .utf8)!, wrapper)
+        pull(AppSandboxHelper.documentsPath.cString(using: .utf8)!, wrapper)
     }
 }
 

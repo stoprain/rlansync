@@ -10,6 +10,7 @@ mod tests {
 pub mod strings;
 pub mod server;
 pub mod scanner;
+pub mod mdns;
 mod protos;
 mod utils;
 
@@ -21,8 +22,7 @@ mod utils;
 
 use std::os::raw::{c_char};
 use std::ffi::{CStr};
-// use get_if_addrs::IfAddr::{V4, V6};
-// use get_if_addrs::Ifv6Addr;
+
 // #[no_mangle]
 // pub extern "C" fn notify(from: *const c_char) {
 //     let c_str = unsafe { CStr::from_ptr(from) };
@@ -37,9 +37,6 @@ use std::ffi::{CStr};
 // use std::thread;
 
 // use local_ip_address::local_ip;
-// use mdns_sd::{ServiceDaemon, ServiceInfo, ServiceEvent};
-// use std::collections::HashMap;
-// use gethostname::gethostname;
 
 // impl Drop for CompletedCallback {
 //     fn drop(&mut self) {
@@ -54,6 +51,9 @@ use server::SwiftObject;
 
 #[no_mangle]
 pub extern "C" fn notify(from: *const c_char, obj: SwiftObject) {
+
+    mdns::setup_mdns();
+
     let c_str = unsafe { CStr::from_ptr(from) };
     let default = match c_str.to_str() {
         Err(_) => "",
@@ -65,19 +65,6 @@ pub extern "C" fn notify(from: *const c_char, obj: SwiftObject) {
 }
 
 #[no_mangle]
-pub extern "C" fn pull(from: *const c_char, addr: *const c_char, obj: SwiftObject) {
-    let c_str = unsafe { CStr::from_ptr(from) };
-    let default = match c_str.to_str() {
-        Err(_) => "",
-        Ok(string) => string,
-    };
-
-    let c_str = unsafe { CStr::from_ptr(addr) };
-    let defaultaddr = match c_str.to_str() {
-        Err(_) => "",
-        Ok(string) => string,
-    };
-
-    let mut server = server::Server::new(default.to_string());
-    server.pull(defaultaddr, obj);
+pub extern "C" fn pull(from: *const c_char, obj: SwiftObject) {
+    mdns::query_mdns(from, &obj);
 }
