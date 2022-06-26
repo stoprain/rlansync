@@ -9,7 +9,6 @@ use std::time::Duration;
 use notify::{Watcher, RecursiveMode, watcher};
 use std::sync::mpsc::channel;
 use std::os::raw::c_void;
-// use substring::Substring;
 use std::ops::Deref;
 
 use crate::{scanner, utils};
@@ -43,11 +42,18 @@ impl Server {
         }
     }
 
-    pub fn pull(&mut self, addr: &str, _: SwiftObject) {
+    pub fn pull(&mut self, addr: &str, _: &SwiftObject) {
         let mut scanner = scanner::Scanner::new();
         scanner.scan(&self.root);
         
-        let stream = TcpStream::connect(addr).unwrap();
+        let stream = TcpStream::connect(addr);
+        let stream = match stream {
+            Ok(s) => s,
+            Err(e) => {
+                println!("{}", e);
+                return
+            },
+        };
 
         let mut out_msg = FileInfoRequest::new();
         out_msg.from = 0;
@@ -126,9 +132,7 @@ impl Server {
         watcher.watch(self.root.to_owned(), RecursiveMode::Recursive).unwrap();
         println!("watch {:?}", self.root);
     
-        // std::thread::spawn(move || {
-    
-        // });
+        //TODO update file info
     
         loop {
             match rx.recv() {
@@ -175,7 +179,7 @@ fn setup_tcp_listener(counter: Arc<Mutex<scanner::Scanner>>) {
 
 fn handle_client(stream: TcpStream, counter: Arc<Mutex<scanner::Scanner>>)-> Result<(), Error> {
     
-    println!("< incoming connection from: {}", stream.peer_addr()?);
+    println!("<< incoming connection from: {}", stream.peer_addr()?);
 
     loop {
         let scanner = counter.lock().unwrap();
@@ -235,7 +239,7 @@ fn handle_client(stream: TcpStream, counter: Arc<Mutex<scanner::Scanner>>)-> Res
         }
     }
 
-    println!("# disconnect from: {}", stream.peer_addr()?);
+    println!(">> disconnect from: {}", stream.peer_addr()?);
     return Ok(());
 }
 

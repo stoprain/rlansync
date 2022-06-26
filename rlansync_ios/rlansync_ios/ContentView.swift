@@ -23,7 +23,7 @@ struct ContentView: View {
             List {
                 ForEach(items, id: \.url) { item in
                     NavigationLink {
-                        if item.url.absoluteString.contains(".txt") {
+                        if item.url.absoluteString.contains(".txt") || item.url.absoluteString.contains(".md") {
                             ItemTextView(path: item.url.absoluteString)
                         } else if item.url.absoluteString.contains(".png") {
                             ItemImageView(path: item.url.absoluteString)

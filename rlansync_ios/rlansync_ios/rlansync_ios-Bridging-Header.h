@@ -20,6 +20,7 @@ struct swift_object {
 
 void notify(const char* from, struct swift_object object);
 
-void pull(const char* from, const char* addr, struct swift_object object);
+//void pull(const char* from, const char* addr, struct swift_object object);
+void pull(const char* from, struct swift_object object);
 
 #endif
