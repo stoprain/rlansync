@@ -4,6 +4,8 @@ This project is personal experiment of [Rust](https://www.rust-lang.org) and [Sw
 
 ## Features
 - iOS share extension
+- macOS client
 - Sync data seamless through LAN
+    - [ ] mDNS Broadcast across subnets?
 
 ![POC](poc.gif "POC")

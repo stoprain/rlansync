@@ -12,10 +12,11 @@ gethostname = "0.2.3"
 get_if_addrs = "0.5.3"
 substring = "1.4.5"
 libc = "0.2.126"
-ring = "0.17.0-alpha.11"
+# ring = "0.16.20"
 data-encoding = "2.3.2"
 protobuf = "3.0.3"
-sqlite = "0.26.0"
+sha256 = "1.0.3"
+# sqlite = "0.26.0"
 # machine-uid = "0.2.0"
 uuid = { version = "1.0.0", features = ["serde", "v4"] }
 
