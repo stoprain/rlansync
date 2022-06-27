@@ -2,11 +2,13 @@ use std::path::PathBuf;
 use std::fs::ReadDir;
 use std::fs;
 use std::collections::HashMap;
-use std::fs::File;
-use std::io::{BufReader, Read};
-use ring::digest::{Context, Digest, SHA256};
-use data_encoding::HEXUPPER;
-use std::error::Error;
+// use std::fs::File;
+use std::path::Path;
+// use std::io::{BufReader, Read};
+// use ring::digest::{Context, Digest, SHA256};
+use sha256::digest_file;
+// use data_encoding::HEXUPPER;
+// use std::error::Error;
 use std::time::{UNIX_EPOCH};
 
 pub struct EntryInfo {
@@ -43,7 +45,7 @@ impl Scanner {
         self.root = parent_pathbuf.to_string();
         let mut iter = FileIteratror::from(parent_pathbuf);
         while let Some((pathbuf, is_folder)) = iter.next() {
-            // println!("is folder {} {:?}", is_folder, path);
+            println!("is folder {} {:?}", is_folder, pathbuf);
             let ss = pathbuf.file_name().to_owned();
             let string = pathbuf.to_owned().into_os_string().into_string().unwrap();
             self.entries.push(string.to_owned());
@@ -55,11 +57,13 @@ impl Scanner {
                 if IGNORE_FILES.contains(&str) {
                     continue;
                 }
-                // let path = pathbuf.into_os_string().into_string().unwrap();
-                let input = File::open(&string).unwrap();
-                let reader = BufReader::new(input);
-                let digest = sha256_digest(reader).unwrap();
-                let digest_string = HEXUPPER.encode(digest.as_ref());
+                let path = pathbuf.into_os_string().into_string().unwrap();
+                // let input = File::open(&string).unwrap();
+                let input = Path::new(&path);
+                let digest_string = digest_file(input).unwrap();
+                // let reader = BufReader::new(input);
+                // let digest = sha256_digest(reader).unwrap();
+                // let digest_string = HEXUPPER.encode(digest.as_ref());
                 let metadata = fs::metadata(string.to_owned());
                 let secs = metadata.unwrap().modified().unwrap().duration_since(UNIX_EPOCH).unwrap().as_secs();
                 let entry = EntryInfo {
@@ -96,6 +100,10 @@ impl Iterator for FileIteratror {
                     Some(Ok(entry)) => {
                         let path = entry.path();
                         if let Ok(md) = entry.metadata() {
+                            println!("{:?}", md);
+                            if !md.is_file() && !md.is_dir() {
+                                continue;
+                            }
                             if md.is_dir() {
                                 self.dirs.push(path.clone());
                                 continue;
@@ -123,17 +131,17 @@ impl Iterator for FileIteratror {
     }
 }
 
-fn sha256_digest<R: Read>(mut reader: R) -> Result<Digest, Box<dyn Error>> {
-    let mut context = Context::new(&SHA256);
-    let mut buffer = [0; 1024];
+// fn sha256_digest<R: Read>(mut reader: R) -> Result<Digest, Box<dyn Error>> {
+//     let mut context = Context::new(&SHA256);
+//     let mut buffer = [0; 1024];
 
-    loop {
-        let count = reader.read(&mut buffer).unwrap();
-        if count == 0 {
-            break;
-        }
-        context.update(&buffer[..count]);
-    }
+//     loop {
+//         let count = reader.read(&mut buffer).unwrap();
+//         if count == 0 {
+//             break;
+//         }
+//         context.update(&buffer[..count]);
+//     }
 
-    Ok(context.finish())
-}
+//     Ok(context.finish())
+// }
