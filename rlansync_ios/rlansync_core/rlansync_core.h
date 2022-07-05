@@ -1,11 +1,20 @@
 //
-//  Use this file to import your target's public headers that you would like to expose to Swift.
+//  rlansync_core.h
+//  rlansync_core
+//
+//  Created by Rain Qian on 2022/7/4.
 //
 
-#ifndef BridgingHeader_h
-#define BridgingHeader_h
-
 #import <Foundation/Foundation.h>
+
+//! Project version number for rlansync_core.
+FOUNDATION_EXPORT double rlansync_coreVersionNumber;
+
+//! Project version string for rlansync_core.
+FOUNDATION_EXPORT const unsigned char rlansync_coreVersionString[];
+
+// In this header, you should import all the public headers of your framework using statements like #import <rlansync_core/PublicHeader.h>
+
 
 struct RustByteSlice {
     const uint8_t *bytes;
@@ -22,5 +31,3 @@ void notify(const char* from, struct swift_object object);
 
 //void pull(const char* from, const char* addr, struct swift_object object);
 void pull(const char* from, struct swift_object object);
-
-#endif

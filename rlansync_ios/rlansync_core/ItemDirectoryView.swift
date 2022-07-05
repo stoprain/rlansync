@@ -7,14 +7,18 @@
 
 import SwiftUI
 
-struct ItemDirectoryView: View {
+public struct ItemDirectoryView: View {
     var path: String
     @State private var profileText: LocalizedStringKey = ""
     @State private var images = [URL]()
     private static let initialColumns = 3
     @State private var gridColumns = Array(repeating: GridItem(.flexible()), count: initialColumns)
     
-    var body: some View {
+    public init(path: String) {
+        self.path = path
+    }
+    
+    public var body: some View {
         VStack {
 //            TextEditor(text: .init(profileText))
             Text(profileText)

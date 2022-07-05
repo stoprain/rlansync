@@ -43,6 +43,7 @@ impl Server {
     }
 
     pub fn pull(&mut self, addr: &str, _: &SwiftObject) {
+        println!("start pull");
         let mut scanner = scanner::Scanner::new();
         scanner.scan(&self.root);
         
@@ -67,6 +68,8 @@ impl Server {
 
         let payload = utils::read_head_and_bytes(&stream).unwrap();
         let res = FileInfoResponse::parse_from_bytes(&payload).unwrap();
+
+        println!("start pull request {:?}", res);
     
         for value in res.fileInfos.into_iter() {
             let first = value;

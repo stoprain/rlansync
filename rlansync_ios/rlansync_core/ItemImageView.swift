@@ -7,12 +7,22 @@
 
 import SwiftUI
 
-struct ItemImageView: View {
+public struct ItemImageView: View {
     var path: String
     @Environment(\.presentationMode) var mode: Binding<PresentationMode>
+    #if os(iOS)
     @State private var image = UIImage()
+    #else
+    @State private var image = NSImage()
+    #endif
     
-    var body: some View {
+    
+    public init(path: String) {
+        self.path = path
+    }
+    
+    public var body: some View {
+    #if os(iOS)
         Image(uiImage: image)
             .onAppear {
                 if path.count > 0 {
@@ -25,6 +35,34 @@ struct ItemImageView: View {
 //                    print(path)
                 }
             }
+    #else
+        Image(nsImage: image)
+            .onAppear {
+                if path.count > 0 {
+//                    image = UIImage(contentsOfFile: path) ?? UIImage()
+                    let url = URL(string: path)!
+                    let d = try? Data(contentsOf: url)
+                    image = NSImage(data: d!)!
+//                    print(d)
+//                    print(image)
+//                    print(path)
+                }
+            }
+    #endif
+        
+        
+//        Image(nsImage: image)
+//            .onAppear {
+//                if path.count > 0 {
+////                    image = UIImage(contentsOfFile: path) ?? UIImage()
+//                    let url = URL(string: path)!
+//                    let d = try? Data(contentsOf: url)
+//                    image = NSImage(data: d!)!
+////                    print(d)
+////                    print(image)
+////                    print(path)
+//                }
+//            }
 //        TextEditor(text: $profileText)
 ////            .frame(height: 60)
 ////            .background(RoundedRectangle(cornerRadius: 4.0).stroke(Color.gray, lineWidth: 2))
