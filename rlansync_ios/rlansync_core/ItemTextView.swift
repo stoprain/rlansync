@@ -6,22 +6,25 @@
 //
 
 import SwiftUI
-import YNLib
 
-struct ItemTextView: View {
+public struct ItemTextView: View {
     
     var path: String
     @Environment(\.presentationMode) var mode: Binding<PresentationMode>
     @State private var profileText = ""
     
-    var body: some View {
+    public init(path: String) {
+        self.path = path
+    }
+    
+    public var body: some View {
         TextEditor(text: $profileText)
 //            .frame(height: 60)
 //            .background(RoundedRectangle(cornerRadius: 4.0).stroke(Color.gray, lineWidth: 2))
 //            .foregroundColor(.blue)
 //            .padding()
             .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
+                ToolbarItem {
                     Button("Save") {
                         let uuid = UUID().uuidString
                         let item = ShareItem(uuid: uuid, text: profileText, images: [])

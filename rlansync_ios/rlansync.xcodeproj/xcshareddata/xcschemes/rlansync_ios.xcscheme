@@ -17,7 +17,7 @@
                BlueprintIdentifier = "B45B826228327D03008D6DAB"
                BuildableName = "rlansync_ios.app"
                BlueprintName = "rlansync_ios"
-               ReferencedContainer = "container:rlansync_ios.xcodeproj">
+               ReferencedContainer = "container:rlansync.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -28,6 +28,16 @@
       selectedLauncherIdentifier = "Xcode.DebuggerFoundation.Launcher.LLDB"
       shouldUseLaunchSchemeArgsEnv = "YES">
       <Testables>
+         <TestableReference
+            skipped = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "B448802F28732F2D000D1093"
+               BuildableName = "rlansync_coreTests.xctest"
+               BlueprintName = "rlansync_coreTests"
+               ReferencedContainer = "container:rlansync.xcodeproj">
+            </BuildableReference>
+         </TestableReference>
       </Testables>
    </TestAction>
    <LaunchAction
@@ -47,7 +57,7 @@
             BlueprintIdentifier = "B45B826228327D03008D6DAB"
             BuildableName = "rlansync_ios.app"
             BlueprintName = "rlansync_ios"
-            ReferencedContainer = "container:rlansync_ios.xcodeproj">
+            ReferencedContainer = "container:rlansync.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </LaunchAction>
@@ -64,7 +74,7 @@
             BlueprintIdentifier = "B45B826228327D03008D6DAB"
             BuildableName = "rlansync_ios.app"
             BlueprintName = "rlansync_ios"
-            ReferencedContainer = "container:rlansync_ios.xcodeproj">
+            ReferencedContainer = "container:rlansync.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </ProfileAction>

@@ -6,19 +6,22 @@
 //
 
 import Foundation
-import YNLib
 
-class SwiftObject {
+public class SwiftObject {
     deinit {
         print("SwiftObject being deallocated")
     }
+    
+    public init() {
+        
+    }
 
-    func callbackWithArg(arg: String) {
+    public func callbackWithArg(arg: String) {
         NotificationCenter.default.post(name: NSNotification.Name("notify"), object: nil, userInfo: nil)
         print("SwiftObject: received callback with arg \(arg)")
     }
     
-    func sendToRust() {
+    public func sendToRust() {
         let ownedPointer = UnsafeMutableRawPointer(Unmanaged.passRetained(self).toOpaque())
         let wrapper = swift_object(
             user: ownedPointer,
@@ -27,7 +30,7 @@ class SwiftObject {
         notify(AppSandboxHelper.documentsPath.cString(using: .utf8)!, wrapper)
     }
     
-    func pullFromRust() {
+    public func pullFromRust() {
         let ownedPointer = UnsafeMutableRawPointer(Unmanaged.passRetained(self).toOpaque())
         let wrapper = swift_object(
             user: ownedPointer,
