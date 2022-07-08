@@ -114,12 +114,25 @@ class ShareViewController: SLComposeServiceViewController {
 //                        }
                         
                         let _ = itemProvider.loadObject(ofClass: UIImage.self) { data, error in
-                            let i = data as? UIImage
-                            let imageData = i!.jpegData(compressionQuality: 0.7)!
-                            images.append(imageData)
-                            prefs.set(images, forKey: "share.\(uuid).public.image")
-                            print("### images \(images.count)")
-                            print("### image \(i?.size)")
+                            if data == nil {
+                                itemProvider.loadItem(forTypeIdentifier: "public.image", options: nil) { result, error in
+                                    if let image = result as? UIImage {
+                                        if let imageData = image.jpegData(compressionQuality: 0.7) {
+                                            images.append(imageData)
+                                            prefs.set(images, forKey: "share.\(uuid).public.image")
+                                            print("### images \(images.count)")
+                                            print("### image \(image.size)")
+                                        }
+                                    }
+                                }
+                            } else {
+                                let i = data as? UIImage
+                                let imageData = i!.jpegData(compressionQuality: 0.7)!
+                                images.append(imageData)
+                                prefs.set(images, forKey: "share.\(uuid).public.image")
+                                print("### images \(images.count)")
+                                print("### image \(i?.size)")
+                            }
                         }
                     }
                 }
