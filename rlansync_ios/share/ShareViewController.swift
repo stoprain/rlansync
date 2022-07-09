@@ -72,7 +72,7 @@ class ShareViewController: SLComposeServiceViewController {
          */
         print("#################")
         let uuid = UUID().uuidString
-        var text = "# \(contentText ?? "")\n"
+        var text = "\(contentText ?? "")\n"
         var images = [Data]()
         if let prefs = UserDefaults(suiteName: sharedIdentifier) {
             var uuids = prefs.array(forKey: "share.uuids") as? [String]

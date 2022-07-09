@@ -12,7 +12,9 @@ public class SwiftObject {
         print("SwiftObject being deallocated")
     }
     
-    public init() {
+    public static let shared = SwiftObject()
+    
+    private init() {
         
     }
 
