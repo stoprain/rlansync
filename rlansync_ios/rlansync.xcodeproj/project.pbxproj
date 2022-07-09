@@ -22,6 +22,7 @@
 		B45B826928327D03008D6DAB /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B45B826828327D03008D6DAB /* ContentView.swift */; };
 		B45B826B28327D05008D6DAB /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B45B826A28327D05008D6DAB /* Assets.xcassets */; };
 		B45B826E28327D05008D6DAB /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B45B826D28327D05008D6DAB /* Preview Assets.xcassets */; };
+		B4946FD12879B4C100B57517 /* SimpleShareItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4946FD02879B4C100B57517 /* SimpleShareItem.swift */; };
 		B4FE8FD6287469B40020B3AD /* librlansync_lib_ios.a in Frameworks */ = {isa = PBXBuildFile; fileRef = B4FE8FD3287469930020B3AD /* librlansync_lib_ios.a */; platformFilter = ios; };
 		B4FE8FD7287469B40020B3AD /* librlansync_lib_macos.a in Frameworks */ = {isa = PBXBuildFile; fileRef = B4FE8FD5287469A90020B3AD /* librlansync_lib_macos.a */; platformFilters = (macos, ); };
 		B4FE8FD928746A990020B3AD /* rlansynclib.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4FE8FD828746A990020B3AD /* rlansynclib.swift */; };
@@ -124,6 +125,7 @@
 		B45B826D28327D05008D6DAB /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		B45B827B28327F6D008D6DAB /* libresolv.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libresolv.tbd; path = usr/lib/libresolv.tbd; sourceTree = SDKROOT; };
 		B46347A5285F1EE700EBF9AC /* ItemImageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ItemImageView.swift; sourceTree = "<group>"; };
+		B4946FD02879B4C100B57517 /* SimpleShareItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SimpleShareItem.swift; sourceTree = "<group>"; };
 		B4DF483828437D4900D5B57C /* ItemTextView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ItemTextView.swift; sourceTree = "<group>"; };
 		B4EF0BA22869EB3E00695AAE /* librlansync_lib.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = librlansync_lib.a; path = ../rlansync_lib/libs/librlansync_lib.a; sourceTree = "<group>"; };
 		B4FE8FCD287337980020B3AD /* librlansync_lib-maccatalyst.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = "librlansync_lib-maccatalyst.a"; path = "../rlansync_lib/libs/librlansync_lib-maccatalyst.a"; sourceTree = "<group>"; };
@@ -195,6 +197,7 @@
 				B4DF483828437D4900D5B57C /* ItemTextView.swift */,
 				B4FE8FDA28746B170020B3AD /* AppSandboxHelper.swift */,
 				B43164DD2844FCF900BC5EA8 /* ShareItem.swift */,
+				B4946FD02879B4C100B57517 /* SimpleShareItem.swift */,
 			);
 			path = rlansync_core;
 			sourceTree = "<group>";
@@ -471,6 +474,7 @@
 				B4FE8FE5287483F10020B3AD /* ItemTextView.swift in Sources */,
 				B4FE8FDB28746B170020B3AD /* AppSandboxHelper.swift in Sources */,
 				B4FE8FE2287483AD0020B3AD /* GridItemView.swift in Sources */,
+				B4946FD12879B4C100B57517 /* SimpleShareItem.swift in Sources */,
 				B4FE8FE4287483B10020B3AD /* ItemImageView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

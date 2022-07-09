@@ -10,9 +10,9 @@ import rlansync_core
 
 struct ContentView: View {
 
-    private var obj = SwiftObject()
     @State private var items = [SimpleShareItem]()
     @State private var toolbarLinkSelected = false
+    let pub = NotificationCenter.default.publisher(for: Notification.Name("notify"))
     
     var body: some View {
         NavigationView {
@@ -56,8 +56,11 @@ struct ContentView: View {
             loadFromDocument()
             
             DispatchQueue.global().async {
-                obj.sendToRust()
+                SwiftObject.shared.sendToRust()
             }
+        }
+        .onReceive(pub) { output in
+            loadFromDocument()
         }
     }
     
@@ -73,26 +76,7 @@ struct ContentView: View {
     }
     
     private func loadFromDocument() {
-        let fileManager = FileManager.default
-        let documentsURL = fileManager.urls(for: .documentDirectory, in: .userDomainMask)[0]
-        do {
-            items.removeAll()
-            let fileURLs = try fileManager.contentsOfDirectory(at: documentsURL, includingPropertiesForKeys: nil)
-            for url in fileURLs {
-                let attr = try? fileManager.attributesOfItem(atPath: url.path)
-                if let date = attr?[FileAttributeKey.modificationDate] as? Date {
-                    let item = SimpleShareItem(url: url, date: date)
-                    items.append(item)
-                }
-            }
-            items.sort {
-                $0.date > $1.date
-            }
-            print("### loadFromDocument ")
-            print(items)
-        } catch {
-            print("Error while enumerating files \(documentsURL.path): \(error.localizedDescription)")
-        }
+        items = SimpleShareItem.loadFromDocument()
     }
     
     private func addItem() {
@@ -101,16 +85,9 @@ struct ContentView: View {
     
     private func pullItem() {
         DispatchQueue.global().async {
-            obj.pullFromRust()
+            SwiftObject.shared.pullFromRust()
         }
     }
-    
-    private let itemFormatter: DateFormatter = {
-        let formatter = DateFormatter()
-        formatter.dateStyle = .short
-        formatter.timeStyle = .medium
-        return formatter
-    }()
 
 }
 

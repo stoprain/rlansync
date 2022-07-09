@@ -9,10 +9,11 @@ import SwiftUI
 
 public struct ItemDirectoryView: View {
     var path: String
-    @State private var profileText: LocalizedStringKey = ""
+    @State private var profileText = ""
     @State private var images = [URL]()
     private static let initialColumns = 3
     @State private var gridColumns = Array(repeating: GridItem(.flexible()), count: initialColumns)
+    @State private var txtpath = ""
     
     public init(path: String) {
         self.path = path
@@ -21,7 +22,28 @@ public struct ItemDirectoryView: View {
     public var body: some View {
         VStack {
 //            TextEditor(text: .init(profileText))
-            Text(profileText)
+            TextEditor(text: $profileText)
+                .toolbar {
+                    ToolbarItem {
+                        Button("Save") {
+                            if txtpath.count > 0 {
+                                let url = URL(fileURLWithPath: txtpath)
+                                print(url.lastPathComponent)
+                                do {
+                                    try profileText.data(using: .utf8)?.write(to: url)
+                                } catch (let e) {
+                                    print(e)
+                                }
+                                
+                            } else {
+                                let uuid = UUID().uuidString
+                                let item = ShareItem(uuid: uuid, text: profileText, images: [])
+                                item.save()
+                            }
+                            dismiss()
+                        }
+                    }
+                }
             
             ScrollView {
                 HStack {
@@ -41,8 +63,9 @@ public struct ItemDirectoryView: View {
             let fileURLs = try? fm.contentsOfDirectory(at: url, includingPropertiesForKeys: nil)
             for fu in fileURLs ?? [] {
                 print(fu)
-                if fu.absoluteString.contains(".md") {
+                if fu.absoluteString.contains(".txt") || fu.absoluteString.contains(".md") {
                     profileText = .init((try? String(contentsOf: fu)) ?? "")
+                    txtpath = fu.path
                 } else if fu.absoluteString.contains(".png") {
                     images.append(fu)
                 }
@@ -50,6 +73,14 @@ public struct ItemDirectoryView: View {
             print(profileText)
             print(images)
         }
+    }
+    
+    private func dismiss() {
+        #if os(iOS)
+        mode.wrappedValue.dismiss()
+        #else
+        NotificationCenter.default.post(name: NSNotification.Name("notify"), object: nil, userInfo: nil)
+        #endif
     }
 }
 
