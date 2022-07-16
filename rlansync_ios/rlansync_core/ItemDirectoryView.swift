@@ -14,6 +14,7 @@ public struct ItemDirectoryView: View {
     private static let initialColumns = 3
     @State private var gridColumns = Array(repeating: GridItem(.flexible()), count: initialColumns)
     @State private var txtpath = ""
+    @Environment(\.presentationMode) var mode: Binding<PresentationMode>
     
     public init(path: String) {
         self.path = path

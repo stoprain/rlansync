@@ -1,4 +1,4 @@
-use std::path::PathBuf;
+use std::{path::PathBuf, io::Read};
 use std::fs::ReadDir;
 use std::fs;
 use std::collections::HashMap;
@@ -10,6 +10,7 @@ use sha256::digest_file;
 // use data_encoding::HEXUPPER;
 // use std::error::Error;
 use std::time::{UNIX_EPOCH};
+use uuid::Uuid;
 
 pub struct EntryInfo {
     pub path: String,
@@ -42,7 +43,26 @@ impl Scanner {
         }
     }
     pub fn scan(&mut self, parent_pathbuf: &str) {
+
         self.root = parent_pathbuf.to_string();
+        let dbdir = self.root.to_owned() + "/.rlansync/";
+        fs::create_dir_all(dbdir.to_owned()).unwrap();
+        let initpath = dbdir.to_owned() + "/init";
+        let mut dbpath = "".to_string();
+        if Path::new(&(initpath)).exists() {
+            let initdata = fs::read_to_string(initpath).unwrap();
+            dbpath = dbdir.to_owned() + &initdata;
+            println!("exist db path {}", dbpath);
+        } else {
+            let id = Uuid::new_v4().to_string();
+            dbpath = dbdir.to_owned() + &id;
+            fs::write(initpath, id).unwrap();
+            println!("new db path {}", dbpath);
+        }
+
+        let tree = sled::open(dbpath);
+        println!("{:?}", tree);
+
         let mut iter = FileIteratror::from(parent_pathbuf);
         while let Some((pathbuf, is_folder)) = iter.next() {
             // println!("is folder {} {:?}", is_folder, pathbuf);
