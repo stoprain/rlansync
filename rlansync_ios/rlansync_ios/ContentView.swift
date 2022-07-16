@@ -60,7 +60,7 @@ struct ContentView: View {
             loadFromDocument()
             
             DispatchQueue.global().async {
-                obj.sendToRust()
+                SwiftObject.shared.sendToRust()
             }
         }
         .onReceive(observer.$enteredForeground) { _ in

@@ -8,6 +8,7 @@
 import UIKit
 import Social
 import UniformTypeIdentifiers
+import MobileCoreServices
 
 /*
  https://developer.apple.com/design/human-interface-guidelines/ios/extensions/sharing-and-actions/
@@ -113,21 +114,36 @@ class ShareViewController: SLComposeServiceViewController {
 //                            print("### image \(data)")
 //                        }
                         
+                        print("### registeredTypeIdentifiers \(itemProvider.registeredTypeIdentifiers)")
+                        
                         let _ = itemProvider.loadObject(ofClass: UIImage.self) { data, error in
                             if data == nil {
-                                itemProvider.loadItem(forTypeIdentifier: "public.image", options: nil) { result, error in
-                                    if let image = result as? UIImage {
-                                        if let imageData = image.jpegData(compressionQuality: 0.7) {
-                                            images.append(imageData)
+//                                itemProvider.loadItem(forTypeIdentifier: kUTTypeImage as String, options: nil) { result, error in
+//                                    if let image = result as? UIImage {
+//                                        if let imageData = image.jpegData(compressionQuality: 0.7) {
+//                                            print("### loadItem")
+//                                            images.append(imageData)
+//                                            prefs.set(images, forKey: "share.\(uuid).public.image")
+//                                            print("### images \(images.count)")
+//                                            print("### image \(image.size)")
+//                                        }
+//                                    } else {
+                                        itemProvider.loadDataRepresentation(forTypeIdentifier: kUTTypeImage as String) { result, error in
+                                            guard let data = result else {
+                                                return
+                                            }
+                                            print("### loadDataRepresentation")
+                                            images.append(data)
                                             prefs.set(images, forKey: "share.\(uuid).public.image")
-                                            print("### images \(images.count)")
-                                            print("### image \(image.size)")
+                                            print("### images \(data.count)")
+                                            print("### image \(data.count)")
                                         }
-                                    }
-                                }
+//                                    }
+//                                }
                             } else {
                                 let i = data as? UIImage
                                 let imageData = i!.jpegData(compressionQuality: 0.7)!
+                                print("### loadObject")
                                 images.append(imageData)
                                 prefs.set(images, forKey: "share.\(uuid).public.image")
                                 print("### images \(images.count)")
