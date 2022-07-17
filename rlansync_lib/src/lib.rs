@@ -11,6 +11,7 @@ pub mod strings;
 pub mod server;
 pub mod scanner;
 pub mod mdns;
+pub mod database;
 mod protos;
 mod utils;
 
