@@ -3,3 +3,4 @@ rlansync_lib/target
 rlansync_lib/sync_client
 rlansync_lib/sync_server
 rlansync_lib/libs
+rlansync_lib/generated
