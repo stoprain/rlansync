@@ -12,7 +12,9 @@ use sha256::digest_file;
 use std::time::{UNIX_EPOCH};
 
 use crate::database::Database;
+use serde::{Serialize, Deserialize};
 
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct EntryInfo {
     pub path: String,
     pub digest: String,
@@ -82,6 +84,15 @@ impl Scanner {
         
             }
         }
+    }
+    pub fn tojson(&mut self) -> String {
+        let mut entries: Vec<EntryInfo> = Vec::new();
+        let infos = &self.entries_info;
+        for (_, value) in infos.into_iter() {
+            entries.push(value.clone());
+        }
+        let json = serde_json::to_string(&entries).unwrap();
+        return json;
     }
 }
 

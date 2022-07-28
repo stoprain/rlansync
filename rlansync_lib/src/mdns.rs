@@ -105,7 +105,7 @@ pub fn setup_mdns() {
 }
 
 
-pub fn query_mdns(from: *const c_char, obj: &SwiftObject) {
+pub fn query_mdns(from: *const c_char) {
     let mdns = ServiceDaemon::new().expect("Failed to create daemon");
     let service_type = "_rlan._tcp.local.";
     let receiver = mdns.browse(service_type).expect("Failed to browse");
@@ -127,7 +127,7 @@ pub fn query_mdns(from: *const c_char, obj: &SwiftObject) {
                 println!("address {:?}", address);
 
                 let mut server = Server::new(default.to_string());
-                server.pull(&address, obj);
+                server.pull(&address);
                 
                 println!("Resolved a new service: {:?}", address);
             }

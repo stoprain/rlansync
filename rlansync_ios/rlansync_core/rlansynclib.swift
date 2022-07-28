@@ -7,6 +7,12 @@
 
 import Foundation
 
+struct EntryInfo: Codable {
+    var path: String
+    var modified: Int
+    var digest: String
+}
+
 public class SwiftObject {
     deinit {
         print("SwiftObject being deallocated")
@@ -19,8 +25,20 @@ public class SwiftObject {
     }
 
     public func callbackWithArg(arg: String) {
-        NotificationCenter.default.post(name: NSNotification.Name("notify"), object: nil, userInfo: nil)
-        print("SwiftObject: received callback with arg \(arg)")
+        guard let data = arg.data(using: .utf8) else {
+            return
+        }
+        let decoder = JSONDecoder()
+        do {
+            let decoded = try decoder.decode([EntryInfo].self, from: data)
+            //TODO
+        } catch (let e) {
+            print(e)
+            print("Failed to decode JSON")
+        }
+        DispatchQueue.main.async {
+            NotificationCenter.default.post(name: NSNotification.Name("notify"), object: nil, userInfo: nil)
+        }
     }
     
     public func sendToRust() {
@@ -29,18 +47,11 @@ public class SwiftObject {
             user: ownedPointer,
             destory: destroy,
             callback_with_arg: callback_with_arg)
-        notify(AppSandboxHelper.documentsPath.cString(using: .utf8)!, wrapper)
+        rust_setup(AppSandboxHelper.documentsPath.cString(using: .utf8)!, wrapper)
     }
     
     public func pullFromRust() {
-        let ownedPointer = UnsafeMutableRawPointer(Unmanaged.passRetained(self).toOpaque())
-        let wrapper = swift_object(
-            user: ownedPointer,
-            destory: destroy,
-            callback_with_arg: callback_with_arg)
-        //TODO set target addr
-        //pull(AppSandboxHelper.documentsPath.cString(using: .utf8)!, "192.168.1.4:8888".cString(using: .utf8)!, wrapper)
-        pull(AppSandboxHelper.documentsPath.cString(using: .utf8)!, wrapper)
+        rust_sync(AppSandboxHelper.documentsPath.cString(using: .utf8)!)
     }
 }
 

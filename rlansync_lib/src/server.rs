@@ -42,7 +42,7 @@ impl Server {
         }
     }
 
-    pub fn pull(&mut self, addr: &str, _: &SwiftObject) {
+    pub fn pull(&mut self, addr: &str) {
         println!("start pull");
         let mut scanner = scanner::Scanner::new();
         scanner.scan(&self.root);
@@ -147,8 +147,12 @@ impl Server {
                         }
                         notify::DebouncedEvent::Create(pathbuf) => {
                             println!("Create pathbuf {:?}", pathbuf);
-                            let s = pathbuf.into_os_string().into_string().unwrap();
-                            (obj.callback_with_arg)(obj.user, strings::RustByteSlice::from(s.as_ref()));
+                            // let s = pathbuf.into_os_string().into_string().unwrap();
+                            let mut scanner = counter.lock().unwrap();
+                            let s = scanner.tojson();
+                            // (obj.callback_with_arg)(obj.user, strings::RustByteSlice::from(s.as_ref()));
+                            // println!("{:?}", scanner);
+                            (obj.callback_with_arg)(obj.user, strings::RustByteSlice::from(s.as_ref()))
                         }
                         _ => {
     

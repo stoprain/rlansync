@@ -126,14 +126,8 @@ fn main() {
     //     callback_with_arg: extern fn(user: *mut c_void, arg: strings::RustByteSlice),
     // }
 
-    let c = SwiftObject {
-        user: 0 as *mut c_void,
-        destroy: destroy,
-        callback_with_arg: ccallback,
-    };
-
     let a = filename.as_ptr() as *const c_char;
-    rlansync_lib::notify(a, c);
+    rlansync_lib::rust_sync(a);
 
     // let mut service = MdnsService::new(ServiceType::new("http", "tcp").unwrap(), 8080);
     // let mut txt_record = TxtRecord::new();

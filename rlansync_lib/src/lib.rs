@@ -51,7 +51,7 @@ use std::ffi::{CStr};
 use server::SwiftObject;
 
 #[no_mangle]
-pub extern "C" fn notify(from: *const c_char, obj: SwiftObject) {
+pub extern "C" fn rust_setup(from: *const c_char, obj: SwiftObject) {
 
     mdns::setup_mdns();
 
@@ -66,6 +66,6 @@ pub extern "C" fn notify(from: *const c_char, obj: SwiftObject) {
 }
 
 #[no_mangle]
-pub extern "C" fn pull(from: *const c_char, obj: SwiftObject) {
-    mdns::query_mdns(from, &obj);
+pub extern "C" fn rust_sync(from: *const c_char) {
+    mdns::query_mdns(from);
 }

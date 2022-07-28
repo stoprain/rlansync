@@ -29,18 +29,12 @@ fn main() {
     let args: Vec<String> = env::args().collect();
     let filename = &args[1];
 
-    let c = SwiftObject {
-        user: 0 as *mut c_void,
-        destroy: destroy,
-        callback_with_arg: ccallback,
-    };
-
     let a = filename.as_ptr() as *const c_char;
 
     // let addr = "192.168.1.21:8888".to_string();
     // let b = addr.as_ptr() as *const c_char;
     // rlansync_lib::pull(a, b, c);
-    rlansync_lib::pull(a, c);
+    rlansync_lib::rust_sync(a);
 
     // let stream = TcpStream::connect("0.0.0.0:8888").unwrap();
 
