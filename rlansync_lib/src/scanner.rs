@@ -43,11 +43,6 @@ impl Scanner {
             root: "".to_string(),
         }
     }
-
-    pub fn fetch(&mut self) {
-        
-    }
-
     pub fn scan(&mut self, parent_pathbuf: &str) {
 
         let mut database = Database::new(parent_pathbuf);

@@ -133,7 +133,7 @@ fn main() {
     };
 
     let a = filename.as_ptr() as *const c_char;
-    rlansync_lib::setup(a, c);
+    rlansync_lib::notify(a, c);
 
     // let mut service = MdnsService::new(ServiceType::new("http", "tcp").unwrap(), 8080);
     // let mut txt_record = TxtRecord::new();

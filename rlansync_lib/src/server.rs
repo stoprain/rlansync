@@ -17,7 +17,7 @@ use crate::strings;
 use crate::protos;
 use crate::utils::write_head_and_bytes;
 use protos::generated_with_pure::example::{FileInfoResponse, FileInfo, FileInfoRequest, GetRequest, FileDataRequest, FileDataResponse};
-// use protos::generated_with_pure::example::file_info::Status;
+use protos::generated_with_pure::example::file_info::Status;
 use protobuf::Message;
 use protobuf::well_known_types::any::Any;
 use protobuf::MessageField;
@@ -42,7 +42,7 @@ impl Server {
         }
     }
 
-    pub fn pull(&mut self, addr: &str) {
+    pub fn pull(&mut self, addr: &str, _: &SwiftObject) {
         println!("start pull");
         let mut scanner = scanner::Scanner::new();
         scanner.scan(&self.root);
@@ -207,7 +207,7 @@ fn handle_client(stream: TcpStream, counter: Arc<Mutex<scanner::Scanner>>)-> Res
                 if value.modified as i64 > request.from {
                     let mut info = FileInfo::new();
                     info.path = value.path.to_owned();
-                    // info.status = Status::CREATE.into();
+                    info.status = Status::CREATE.into();
                     info.digest = value.digest.to_owned();
                     res.fileInfos.push(info);
                     res.from = value.modified as i64;

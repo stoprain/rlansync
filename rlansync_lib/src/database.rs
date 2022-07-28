@@ -8,7 +8,7 @@ use sled::Db;
 
 #[derive(Serialize, Deserialize, Debug)]
 struct FileInfo {
-    // source: String,
+    source: String,
     tag: String,
 }
 
@@ -50,19 +50,11 @@ impl Database {
         // let data = format!(r"{"source"");
         // let v: FileInfo = serde_json::from_str(&data).unwrap();
         let fileInfo = FileInfo {
-            // source: path.to_lowercase(),
+            source: path.to_lowercase(),
             tag: "".to_string(),
         };
-        let j = serde_json::to_string(&fileInfo).unwrap();
-        // println!("{} > {:?}", path, j)
-        let s: &str = &*j;
-        let t = self.tree.insert(path.to_owned(), s);
-        println!("{:?}", t);
-
-
-        let s = self.tree.get(&path).unwrap().unwrap();
-        let ss = std::str::from_utf8(&s).unwrap();
-        println!("{}", ss);
+        let j = serde_json::to_string(&fileInfo);
+        println!("{} > {:?}", path, j)
     }
 
 }

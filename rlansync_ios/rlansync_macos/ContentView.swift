@@ -7,7 +7,6 @@
 
 import SwiftUI
 import rlansync_core
-import rlansync_lib
 
 struct ContentView: View {
 
@@ -57,8 +56,7 @@ struct ContentView: View {
             loadFromDocument()
             
             DispatchQueue.global().async {
-//                SwiftObject.shared.sendToRust()
-                print(hello_rust().toString())
+                SwiftObject.shared.sendToRust()
             }
         }
         .onReceive(pub) { output in
@@ -87,7 +85,7 @@ struct ContentView: View {
     
     private func pullItem() {
         DispatchQueue.global().async {
-//            SwiftObject.shared.pullFromRust()
+            SwiftObject.shared.pullFromRust()
         }
     }
 
