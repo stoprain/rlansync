@@ -59,9 +59,7 @@ struct ContentView: View {
             let _ = loadFromSuite()
             loadFromDocument()
             
-            DispatchQueue.global().async {
-                SwiftObject.shared.sendToRust()
-            }
+            SwiftObject.shared.sendToRust()
         }
         .onReceive(observer.$enteredForeground) { _ in
             if loadFromSuite() {
@@ -126,9 +124,7 @@ struct ContentView: View {
     }
     
     private func pullItem() {
-        DispatchQueue.global().async {
-            SwiftObject.shared.pullFromRust()
-        }
+        SwiftObject.shared.pullFromRust()
     }
 }
 

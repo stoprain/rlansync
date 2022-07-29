@@ -23,8 +23,7 @@
 		B45B826B28327D05008D6DAB /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B45B826A28327D05008D6DAB /* Assets.xcassets */; };
 		B45B826E28327D05008D6DAB /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B45B826D28327D05008D6DAB /* Preview Assets.xcassets */; };
 		B4946FD12879B4C100B57517 /* SimpleShareItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4946FD02879B4C100B57517 /* SimpleShareItem.swift */; };
-		B4FE8FD6287469B40020B3AD /* librlansync_lib_ios.a in Frameworks */ = {isa = PBXBuildFile; fileRef = B4FE8FD3287469930020B3AD /* librlansync_lib_ios.a */; platformFilter = ios; };
-		B4FE8FD7287469B40020B3AD /* librlansync_lib_macos.a in Frameworks */ = {isa = PBXBuildFile; fileRef = B4FE8FD5287469A90020B3AD /* librlansync_lib_macos.a */; platformFilters = (macos, ); };
+		B4EBF58828942C5C00EA53CD /* rlansync_lib in Frameworks */ = {isa = PBXBuildFile; productRef = B4EBF58728942C5C00EA53CD /* rlansync_lib */; };
 		B4FE8FD928746A990020B3AD /* rlansynclib.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4FE8FD828746A990020B3AD /* rlansynclib.swift */; };
 		B4FE8FDB28746B170020B3AD /* AppSandboxHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4FE8FDA28746B170020B3AD /* AppSandboxHelper.swift */; };
 		B4FE8FDC28746E530020B3AD /* rlansync_core.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B448802728732F2D000D1093 /* rlansync_core.framework */; platformFilter = ios; };
@@ -123,15 +122,10 @@
 		B45B826828327D03008D6DAB /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		B45B826A28327D05008D6DAB /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		B45B826D28327D05008D6DAB /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
-		B45B827B28327F6D008D6DAB /* libresolv.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libresolv.tbd; path = usr/lib/libresolv.tbd; sourceTree = SDKROOT; };
 		B46347A5285F1EE700EBF9AC /* ItemImageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ItemImageView.swift; sourceTree = "<group>"; };
 		B4946FD02879B4C100B57517 /* SimpleShareItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SimpleShareItem.swift; sourceTree = "<group>"; };
 		B4DF483828437D4900D5B57C /* ItemTextView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ItemTextView.swift; sourceTree = "<group>"; };
-		B4EF0BA22869EB3E00695AAE /* librlansync_lib.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = librlansync_lib.a; path = ../rlansync_lib/libs/librlansync_lib.a; sourceTree = "<group>"; };
-		B4FE8FCD287337980020B3AD /* librlansync_lib-maccatalyst.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = "librlansync_lib-maccatalyst.a"; path = "../rlansync_lib/libs/librlansync_lib-maccatalyst.a"; sourceTree = "<group>"; };
-		B4FE8FD1287466500020B3AD /* librlansync_lib.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = librlansync_lib.a; path = "../rlansync_lib/target/x86_64-apple-ios/release/librlansync_lib.a"; sourceTree = "<group>"; };
-		B4FE8FD3287469930020B3AD /* librlansync_lib_ios.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = librlansync_lib_ios.a; path = ../rlansync_lib/libs/librlansync_lib_ios.a; sourceTree = "<group>"; };
-		B4FE8FD5287469A90020B3AD /* librlansync_lib_macos.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = librlansync_lib_macos.a; path = ../rlansync_lib/libs/librlansync_lib_macos.a; sourceTree = "<group>"; };
+		B4EBF58628942BF600EA53CD /* rlansync_lib */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = rlansync_lib; path = ../rlansync_lib/rlansync_lib; sourceTree = "<group>"; };
 		B4FE8FD828746A990020B3AD /* rlansynclib.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = rlansynclib.swift; sourceTree = "<group>"; };
 		B4FE8FDA28746B170020B3AD /* AppSandboxHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppSandboxHelper.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -148,8 +142,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				B4FE8FD6287469B40020B3AD /* librlansync_lib_ios.a in Frameworks */,
-				B4FE8FD7287469B40020B3AD /* librlansync_lib_macos.a in Frameworks */,
+				B4EBF58828942C5C00EA53CD /* rlansync_lib in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -225,6 +218,7 @@
 		B45B825A28327D03008D6DAB = {
 			isa = PBXGroup;
 			children = (
+				B4EBF58528942BF600EA53CD /* Packages */,
 				B45B826528327D03008D6DAB /* rlansync_ios */,
 				B43164CF2844F47D00BC5EA8 /* share */,
 				B448802828732F2D000D1093 /* rlansync_core */,
@@ -268,14 +262,16 @@
 		B45B827428327D58008D6DAB /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				B4FE8FD5287469A90020B3AD /* librlansync_lib_macos.a */,
-				B4FE8FD3287469930020B3AD /* librlansync_lib_ios.a */,
-				B4FE8FD1287466500020B3AD /* librlansync_lib.a */,
-				B4FE8FCD287337980020B3AD /* librlansync_lib-maccatalyst.a */,
-				B4EF0BA22869EB3E00695AAE /* librlansync_lib.a */,
-				B45B827B28327F6D008D6DAB /* libresolv.tbd */,
 			);
 			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		B4EBF58528942BF600EA53CD /* Packages */ = {
+			isa = PBXGroup;
+			children = (
+				B4EBF58628942BF600EA53CD /* rlansync_lib */,
+			);
+			name = Packages;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -323,6 +319,9 @@
 			dependencies = (
 			);
 			name = rlansync_core;
+			packageProductDependencies = (
+				B4EBF58728942C5C00EA53CD /* rlansync_lib */,
+			);
 			productName = rlansync_core;
 			productReference = B448802728732F2D000D1093 /* rlansync_core.framework */;
 			productType = "com.apple.product-type.framework";
@@ -611,7 +610,6 @@
 					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
 				);
-				LIBRARY_SEARCH_PATHS = "$(PROJECT_DIR)/../rlansync_lib/libs";
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.stoprain.rlansync.core;
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
@@ -651,7 +649,6 @@
 					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
 				);
-				LIBRARY_SEARCH_PATHS = "$(PROJECT_DIR)/../rlansync_lib/libs";
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.stoprain.rlansync.core;
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
@@ -955,6 +952,13 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		B4EBF58728942C5C00EA53CD /* rlansync_lib */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = rlansync_lib;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = B45B825B28327D03008D6DAB /* Project object */;
 }

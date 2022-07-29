@@ -32,7 +32,7 @@ public struct SimpleShareItem {
                 $0.date > $1.date
             }
             print("### loadFromDocument ")
-            print(items)
+//            print(items)
         } catch {
             print("Error while enumerating files \(documentsURL.path): \(error.localizedDescription)")
         }

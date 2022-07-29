@@ -27,5 +27,6 @@ struct swift_object {
     void (*callback_with_arg)(void *user, struct RustByteSlice arg);
 };
 
-void rust_setup(const char* from, struct swift_object object);
-void rust_sync(const char* from);
+//void rust_setup(const char* from, struct swift_object object);
+//void rust_sync(const char* from);
+//void rust_update(const char* from, const char* tag);

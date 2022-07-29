@@ -69,3 +69,51 @@ pub extern "C" fn rust_setup(from: *const c_char, obj: SwiftObject) {
 pub extern "C" fn rust_sync(from: *const c_char) {
     mdns::query_mdns(from);
 }
+
+#[swift_bridge::bridge]
+mod ffi {
+    // #[swift_bridge::bridge(swift_repr = "struct")]
+    // struct AppConfig {
+    //     some_field: u8,
+    // }
+
+    extern "Rust" {
+        type RustApp;
+
+        #[swift_bridge(init)]
+        fn new() -> RustApp;
+        // fn new(config: AppConfig) -> RustApp;
+        fn generate_html(&mut self, rust_code: &str) -> String;
+        fn generate_html1(&mut self, rust_code: &str) -> String;
+    }
+
+    // extern "Swift" {
+    //     type CustomFileManager;
+    //     // fn save_file(&self, name: &str);
+    // }
+}
+
+pub struct RustApp {
+    pub count: i64,
+}
+
+impl RustApp {
+    // fn new(config: ffi::AppConfig) -> Self {
+    fn new() -> Self {
+        RustApp {
+            count: 0,
+        }
+    }
+
+    fn generate_html(&mut self, rust_code: &str) -> String {
+        self.count += 1;
+        println!("{}", self.count);
+        return "generate_html".to_string();
+    }
+
+    fn generate_html1(&mut self, rust_code: &str) -> String {
+        self.count += 1;
+        println!("{}", self.count);
+        return "generate_html1".to_string();
+    }
+}

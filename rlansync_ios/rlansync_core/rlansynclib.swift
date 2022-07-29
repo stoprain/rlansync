@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import rlansync_lib
 
 struct EntryInfo: Codable {
     var path: String
@@ -19,6 +20,7 @@ public class SwiftObject {
     }
     
     public static let shared = SwiftObject()
+    let r = RustApp()
     
     private init() {
         
@@ -47,12 +49,19 @@ public class SwiftObject {
             user: ownedPointer,
             destory: destroy,
             callback_with_arg: callback_with_arg)
-        rust_setup(AppSandboxHelper.documentsPath.cString(using: .utf8)!, wrapper)
+//        rust_setup(AppSandboxHelper.documentsPath.cString(using: .utf8)!, wrapper)
+//        r.generate_html("test")
+        r.generate_html("")
     }
     
     public func pullFromRust() {
-        rust_sync(AppSandboxHelper.documentsPath.cString(using: .utf8)!)
+//        rust_sync(AppSandboxHelper.documentsPath.cString(using: .utf8)!)
+        r.generate_html1("")
     }
+    
+//    public func update() {
+//        rust_update("", "")
+//    }
 }
 
 private func callback_with_arg(user: UnsafeMutableRawPointer?, arg: RustByteSlice) {

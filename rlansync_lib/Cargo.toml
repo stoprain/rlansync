@@ -21,9 +21,11 @@ sled = "0.34.7"
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
 uuid = { version = "1.0.0", features = ["serde", "v4"] }
+swift-bridge = "0.1"
 
 [build-dependencies]
 protobuf-codegen = "3.0.3"
+swift-bridge-build = "0.1"
 
 [lib]
 crate-type = ["lib", "staticlib"]

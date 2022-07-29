@@ -137,31 +137,31 @@ impl Server {
     
         //TODO update file info
     
-        loop {
-            match rx.recv() {
-                Ok(event) => {
-                    println!("{:?}", event);
-                    match event {
-                        notify::DebouncedEvent::Remove(pathbuf) => {
-                            println!("Remove pathbuf {:?}", pathbuf);
-                        }
-                        notify::DebouncedEvent::Create(pathbuf) => {
-                            println!("Create pathbuf {:?}", pathbuf);
-                            // let s = pathbuf.into_os_string().into_string().unwrap();
-                            let mut scanner = counter.lock().unwrap();
-                            let s = scanner.tojson();
-                            // (obj.callback_with_arg)(obj.user, strings::RustByteSlice::from(s.as_ref()));
-                            // println!("{:?}", scanner);
-                            (obj.callback_with_arg)(obj.user, strings::RustByteSlice::from(s.as_ref()))
-                        }
-                        _ => {
+        // loop {
+        //     match rx.recv() {
+        //         Ok(event) => {
+        //             println!("{:?}", event);
+        //             match event {
+        //                 notify::DebouncedEvent::Remove(pathbuf) => {
+        //                     println!("Remove pathbuf {:?}", pathbuf);
+        //                 }
+        //                 notify::DebouncedEvent::Create(pathbuf) => {
+        //                     println!("Create pathbuf {:?}", pathbuf);
+        //                     // let s = pathbuf.into_os_string().into_string().unwrap();
+        //                     let mut scanner = counter.lock().unwrap();
+        //                     let s = scanner.tojson();
+        //                     // (obj.callback_with_arg)(obj.user, strings::RustByteSlice::from(s.as_ref()));
+        //                     // println!("{:?}", scanner);
+        //                     (obj.callback_with_arg)(obj.user, strings::RustByteSlice::from(s.as_ref()))
+        //                 }
+        //                 _ => {
     
-                        }
-                    }
-                },
-                Err(e) => println!("watch error: {:?}", e),
-            }
-        }
+        //                 }
+        //             }
+        //         },
+        //         Err(e) => println!("watch error: {:?}", e),
+        //     }
+        // }
     }
 }
 
