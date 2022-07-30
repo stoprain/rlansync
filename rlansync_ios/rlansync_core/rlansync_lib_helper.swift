@@ -23,7 +23,21 @@ public class rlansync_lib_helper {
     private init() {
         rust = RustApp()
         rlansync_bridge.shared.callback = { (s: String) in
-            print("rlansync_bridge callback \(s)")
+            print("rlansync_bridge callback")
+            guard let data = s.data(using: .utf8) else {
+                return
+            }
+            let decoder = JSONDecoder()
+            do {
+                let decoded = try decoder.decode([EntryInfo].self, from: data)
+                print("decoded EntryInfo \(decoded.count)")
+            } catch (let e) {
+                print(e)
+                print("Failed to decode JSON")
+            }
+            DispatchQueue.main.async {
+                NotificationCenter.default.post(name: NSNotification.Name("notify"), object: nil, userInfo: nil)
+            }
         }
     }
     
@@ -35,25 +49,8 @@ public class rlansync_lib_helper {
         rust.pull(AppSandboxHelper.documentsPath)
     }
     
+    //uuid, tag
     public func update(path: String, tag: String) {
-        
+        rust.update(path, tag)
     }
 }
-
-
-//public func callbackWithArg(arg: String) {
-//    guard let data = arg.data(using: .utf8) else {
-//        return
-//    }
-//    let decoder = JSONDecoder()
-//    do {
-//        let decoded = try decoder.decode([EntryInfo].self, from: data)
-//        //TODO
-//    } catch (let e) {
-//        print(e)
-//        print("Failed to decode JSON")
-//    }
-//    DispatchQueue.main.async {
-//        NotificationCenter.default.post(name: NSNotification.Name("notify"), object: nil, userInfo: nil)
-//    }
-//}

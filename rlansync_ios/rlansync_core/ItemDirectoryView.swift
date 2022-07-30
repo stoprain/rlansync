@@ -23,6 +23,10 @@ public struct ItemDirectoryView: View {
     public var body: some View {
         VStack {
 //            TextEditor(text: .init(profileText))
+            Button("Add tag") {
+                let url = URL(string: path)!
+                rlansync_lib_helper.shared.update(path: url.lastPathComponent, tag: "test")
+            }
             TextEditor(text: $profileText)
                 .toolbar {
                     ToolbarItem {

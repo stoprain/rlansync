@@ -11,30 +11,22 @@
 // use std::fs;
 
 use std::env;
-use rlansync_lib;
-use rlansync_lib::server::SwiftObject;
-use rlansync_lib::strings;
-use std::os::raw::{c_void, c_char};
-
-extern "C" fn ccallback(_: *mut c_void, _: strings::RustByteSlice) {
-
-}
-
-extern "C" fn destroy(_: *mut c_void) {
-
-}
+use rlansync_lib::{self, RustApp};
 
 fn main() {
 
     let args: Vec<String> = env::args().collect();
     let filename = &args[1];
 
-    let a = filename.as_ptr() as *const c_char;
+    let mut app = RustApp::new();
+    app.pull(filename);
+
+    // let a = filename.as_ptr() as *const c_char;
 
     // let addr = "192.168.1.21:8888".to_string();
     // let b = addr.as_ptr() as *const c_char;
     // rlansync_lib::pull(a, b, c);
-    rlansync_lib::rust_sync(a);
+    // rlansync_lib::rust_sync(a);
 
     // let stream = TcpStream::connect("0.0.0.0:8888").unwrap();
 

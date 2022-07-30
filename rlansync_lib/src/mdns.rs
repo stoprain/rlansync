@@ -13,7 +13,7 @@ use substring::Substring;
 use mdns_sd::{ServiceDaemon, ServiceInfo, ServiceEvent};
 use get_if_addrs::IfAddr::{V4, V6};
 use std::os::raw::{c_char};
-use crate::server::{SwiftObject, Server};
+use crate::server::{Server};
 // use get_if_addrs::Ifv6Addr;
 use std::ffi::{CStr};
 
@@ -105,7 +105,7 @@ pub fn setup_mdns() {
 }
 
 
-pub fn query_mdns(from: *const c_char) {
+pub fn query_mdns(from: String) {
     let mdns = ServiceDaemon::new().expect("Failed to create daemon");
     let service_type = "_rlan._tcp.local.";
     let receiver = mdns.browse(service_type).expect("Failed to browse");
@@ -118,16 +118,10 @@ pub fn query_mdns(from: *const c_char) {
                 let port = info.get_port().to_string();
                 let address = addr + ":" + &port;
 
-                let c_str = unsafe { CStr::from_ptr(from) };
-                let default = match c_str.to_str() {
-                    Err(_) => "",
-                    Ok(string) => string,
-                };
-
                 println!("address {:?}", address);
 
-                let mut server = Server::new(default.to_string());
-                server.pull(&address);
+                let mut server = Server::new();
+                server.pull(&from, &address);
                 
                 println!("Resolved a new service: {:?}", address);
             }

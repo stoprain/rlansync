@@ -54,7 +54,7 @@ impl Database {
             tag: "".to_string(),
         };
         let j = serde_json::to_string(&fileInfo);
-        println!("{} > {:?}", path, j)
+        // println!("{} > {:?}", path, j)
     }
 
 }

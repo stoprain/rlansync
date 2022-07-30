@@ -25,7 +25,6 @@ use std::env;
 // use mdns_sd::{ServiceDaemon, ServiceInfo};
 // use std::collections::HashMap;
 
-
 /*
     * init client with configuration (machineId)
     
@@ -57,19 +56,7 @@ use std::env;
     *endloop
 */
 
-use rlansync_lib;
-use rlansync_lib::server::SwiftObject;
-use rlansync_lib::strings;
-
-use std::os::raw::{c_void, c_char};
-
-extern "C" fn ccallback(_: *mut c_void, _: strings::RustByteSlice) {
-
-}
-
-extern "C" fn destroy(_: *mut c_void) {
-
-}
+use rlansync_lib::{self, RustApp};
 
 // use std::net::{TcpStream};
 // use std::io::{Read, Write};
@@ -111,6 +98,8 @@ fn main() {
     let args: Vec<String> = env::args().collect();
     // // println!("{:?}", args)
     let filename = &args[1];
+    // let mut app = RustApp::new();
+    // app.setup(filename);
     // println!("Syncing {}", filename);
 
     // // iohelper::test(filename.to_string());
@@ -126,8 +115,8 @@ fn main() {
     //     callback_with_arg: extern fn(user: *mut c_void, arg: strings::RustByteSlice),
     // }
 
-    let a = filename.as_ptr() as *const c_char;
-    rlansync_lib::rust_sync(a);
+    // let a = filename.as_ptr() as *const c_char;
+    // rlansync_lib::rust_sync(a);
 
     // let mut service = MdnsService::new(ServiceType::new("http", "tcp").unwrap(), 8080);
     // let mut txt_record = TxtRecord::new();

@@ -47,30 +47,8 @@ use std::ffi::{CStr};
 
 // use std::time::{SystemTime, UNIX_EPOCH};
 
-
-use server::SwiftObject;
-
-#[no_mangle]
-pub extern "C" fn rust_setup(from: *const c_char) {
-
-    mdns::setup_mdns();
-
-    let c_str = unsafe { CStr::from_ptr(from) };
-    let default = match c_str.to_str() {
-        Err(_) => "",
-        Ok(string) => string,
-    };
-
-    let mut server = server::Server::new(default.to_string());
-    server.run();
-}
-
-#[no_mangle]
-pub extern "C" fn rust_sync(from: *const c_char) {
-    mdns::query_mdns(from);
-}
-
 pub use ffi::swift_callback;
+use server::Server;
 
 #[swift_bridge::bridge]
 mod ffi {
@@ -90,25 +68,26 @@ mod ffi {
 }
 
 pub struct RustApp {
-    pub count: i64,
+    pub server: Server,
 }
 
 impl RustApp {
-    fn new() -> Self {
+    pub fn new() -> Self {
         RustApp {
-            count: 10,
+            server: server::Server::new(),
         }
     }
 
-    fn setup(&mut self, path: &str) {
-        mdns::setup_mdns();    
-        let mut server = server::Server::new(path.to_string());
-        server.run();
+    pub fn setup(&mut self, path: &str) {
+        mdns::setup_mdns();
+        self.server.run(path);
     }
 
-    fn pull(&mut self, path: &str) {
+    pub fn pull(&mut self, path: &str) {
+        mdns::query_mdns(path.to_string());
     }
 
-    fn update(&mut self, path: &str, tag: &str) {
+    pub fn update(&mut self, path: &str, tag: &str) {
+        self.server.update(path, tag)
     }
 }

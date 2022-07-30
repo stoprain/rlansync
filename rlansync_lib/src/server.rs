@@ -8,11 +8,9 @@ use std::thread;
 use std::time::Duration;
 use notify::{Watcher, RecursiveMode, watcher};
 use std::sync::mpsc::channel;
-use std::os::raw::c_void;
-use std::ops::Deref;
 
+use crate::scanner::Scanner;
 use crate::{scanner, utils, swift_callback};
-use crate::strings;
 
 use crate::protos;
 use crate::utils::write_head_and_bytes;
@@ -31,21 +29,23 @@ mod tests;
 
 //https://stackoverflow.com/questions/30677258/how-do-i-import-from-a-sibling-module
 pub struct Server {
-    pub root: String,
+    pub scannerCounter: Arc<Mutex<Scanner>>
 }
 
 impl Server {
 
-    pub fn new(root: String) -> Self {
+    pub fn new() -> Self {
+        let mut scanner = scanner::Scanner::new();
+        let counter =  Arc::new(Mutex::new(scanner));
         Server {
-            root
+            scannerCounter: counter
         }
     }
 
-    pub fn pull(&mut self, addr: &str) {
+    pub fn pull(&mut self, path: &str, addr: &str) {
         println!("start pull");
-        let mut scanner = scanner::Scanner::new();
-        scanner.scan(&self.root);
+        let mut scanner = self.scannerCounter.lock().unwrap();
+        scanner.scan(path);
         
         let stream = TcpStream::connect(addr);
         let stream = match stream {
@@ -88,13 +88,13 @@ impl Server {
                 }
             }
 
-            let s = self.root.to_owned() + &first.path;
+            let s = path.to_owned() + &first.path;
 
             if is_exist {
                 println!("> already exist {:?}", s);
                 continue;
             } else if exist_path.len() > 0 {
-                let ss =  self.root.to_owned() + &exist_path;
+                let ss =  path.to_owned() + &exist_path;
                 println!("> move {:?} > {:?}", ss, s);
                 fs::copy(ss, s).unwrap();
                 continue;
@@ -123,48 +123,66 @@ impl Server {
         }
     }
 
-    pub fn run(&mut self) {
-        let mut scanner = scanner::Scanner::new();
-        scanner.scan(&self.root);
+    pub fn run(&mut self, path: &str) {
+        let mut scanner = self.scannerCounter.lock().unwrap();
+        scanner.scan(path);
         let s = scanner.tojson();
 
-        let counter = Arc::new(Mutex::new(scanner));
-        setup_tcp_listener(counter.clone());
+        setup_tcp_listener(self.scannerCounter.clone());
 
-        let (tx, rx) = channel();
-        let mut watcher = watcher(tx, Duration::from_secs(1)).unwrap();
-        watcher.watch(self.root.to_owned(), RecursiveMode::Recursive).unwrap();
-        println!("watch {:?}", self.root);
+        // let (tx, rx) = channel();
+        // let mut watcher = watcher(tx, Duration::from_secs(1)).unwrap();
+        // watcher.watch(self.root.to_owned(), RecursiveMode::Recursive).unwrap();
+        // println!("watch {:?}", self.root);
+
+        let ss = path.to_owned();
 
         swift_callback(&s);
+
+        let counter = self.scannerCounter.clone();
+
+        std::thread::spawn(move || {
+            // TODO update file info
+
+            // let (tx, rx) = channel();
+
+            let (tx, rx) = channel();
+            let mut watcher = watcher(tx, Duration::from_secs(1)).unwrap();
+            watcher.watch(ss.to_owned(), RecursiveMode::Recursive).unwrap();
+            println!("watch {:?}", ss);
     
-        //TODO update file info
-    
-        // loop {
-        //     match rx.recv() {
-        //         Ok(event) => {
-        //             println!("{:?}", event);
-        //             match event {
-        //                 notify::DebouncedEvent::Remove(pathbuf) => {
-        //                     println!("Remove pathbuf {:?}", pathbuf);
-        //                 }
-        //                 notify::DebouncedEvent::Create(pathbuf) => {
-        //                     println!("Create pathbuf {:?}", pathbuf);
-        //                     // let s = pathbuf.into_os_string().into_string().unwrap();
-        //                     let mut scanner = counter.lock().unwrap();
-        //                     let s = scanner.tojson();
-        //                     // (obj.callback_with_arg)(obj.user, strings::RustByteSlice::from(s.as_ref()));
-        //                     // println!("{:?}", scanner);
-        //                     (obj.callback_with_arg)(obj.user, strings::RustByteSlice::from(s.as_ref()))
-        //                 }
-        //                 _ => {
-    
-        //                 }
-        //             }
-        //         },
-        //         Err(e) => println!("watch error: {:?}", e),
-        //     }
-        // }
+            loop {
+                match rx.recv() {
+                    Ok(event) => {
+                        println!("{:?}", event);
+                        match event {
+                            notify::DebouncedEvent::Remove(pathbuf) => {
+                                println!("Remove pathbuf {:?}", pathbuf);
+                            }
+                            notify::DebouncedEvent::Create(pathbuf) => {
+                                println!("Create pathbuf {:?}", pathbuf);
+                                // let s = pathbuf.into_os_string().into_string().unwrap();
+                                let mut scanner = counter.lock().unwrap();
+                                let s = scanner.tojson();
+                                // (obj.callback_with_arg)(obj.user, strings::RustByteSlice::from(s.as_ref()));
+                                // println!("{:?}", scanner);
+                                // (obj.callback_with_arg)(obj.user, strings::RustByteSlice::from(s.as_ref()))
+                                swift_callback(&s);
+                            }
+                            _ => {
+        
+                            }
+                        }
+                    },
+                    Err(e) => println!("watch error: {:?}", e),
+                }
+            }
+        });
+    }
+
+    pub fn update(&mut self, path: &str, tag: &str) {
+        let scanner = self.scannerCounter.lock().unwrap();
+        println!("scanner.entries.len() {}", scanner.entries.len())
     }
 }
 
@@ -251,29 +269,4 @@ fn handle_client(stream: TcpStream, counter: Arc<Mutex<scanner::Scanner>>)-> Res
 
     println!(">> disconnect from: {}", stream.peer_addr()?);
     return Ok(());
-}
-
-#[repr(C)]
-pub struct SwiftObject {
-    pub user: *mut c_void,
-    pub destroy: extern fn(user: *mut c_void),
-    pub callback_with_arg: extern fn(user: *mut c_void, arg: strings::RustByteSlice),
-}
-
-unsafe impl Send for SwiftObject {}
-
-struct SwiftObjectWrapper(SwiftObject);
-
-impl Deref for SwiftObjectWrapper {
-    type Target = SwiftObject;
-
-    fn deref(&self) -> &SwiftObject {
-        &self.0
-    }
-}
-
-impl Drop for SwiftObjectWrapper {
-    fn drop(&mut self) {
-        (self.destroy)(self.user);
-    }
 }
