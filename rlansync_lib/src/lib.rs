@@ -51,7 +51,7 @@ use std::ffi::{CStr};
 use server::SwiftObject;
 
 #[no_mangle]
-pub extern "C" fn rust_setup(from: *const c_char, obj: SwiftObject) {
+pub extern "C" fn rust_setup(from: *const c_char) {
 
     mdns::setup_mdns();
 
@@ -62,7 +62,7 @@ pub extern "C" fn rust_setup(from: *const c_char, obj: SwiftObject) {
     };
 
     let mut server = server::Server::new(default.to_string());
-    server.run(obj);
+    server.run();
 }
 
 #[no_mangle]
@@ -70,27 +70,23 @@ pub extern "C" fn rust_sync(from: *const c_char) {
     mdns::query_mdns(from);
 }
 
+pub use ffi::swift_callback;
+
 #[swift_bridge::bridge]
 mod ffi {
-    // #[swift_bridge::bridge(swift_repr = "struct")]
-    // struct AppConfig {
-    //     some_field: u8,
-    // }
-
     extern "Rust" {
         type RustApp;
 
         #[swift_bridge(init)]
         fn new() -> RustApp;
-        // fn new(config: AppConfig) -> RustApp;
-        fn generate_html(&mut self, rust_code: &str) -> String;
-        fn generate_html1(&mut self, rust_code: &str) -> String;
+        fn setup(&mut self, path: &str);
+        fn pull(&mut self, path: &str);
+        fn update(&mut self, path: &str, tag: &str);
     }
 
-    // extern "Swift" {
-    //     type CustomFileManager;
-    //     // fn save_file(&self, name: &str);
-    // }
+    extern "Swift" {
+        fn swift_callback(json: &str);
+    }
 }
 
 pub struct RustApp {
@@ -98,22 +94,21 @@ pub struct RustApp {
 }
 
 impl RustApp {
-    // fn new(config: ffi::AppConfig) -> Self {
     fn new() -> Self {
         RustApp {
-            count: 0,
+            count: 10,
         }
     }
 
-    fn generate_html(&mut self, rust_code: &str) -> String {
-        self.count += 1;
-        println!("{}", self.count);
-        return "generate_html".to_string();
+    fn setup(&mut self, path: &str) {
+        mdns::setup_mdns();    
+        let mut server = server::Server::new(path.to_string());
+        server.run();
     }
 
-    fn generate_html1(&mut self, rust_code: &str) -> String {
-        self.count += 1;
-        println!("{}", self.count);
-        return "generate_html1".to_string();
+    fn pull(&mut self, path: &str) {
+    }
+
+    fn update(&mut self, path: &str, tag: &str) {
     }
 }

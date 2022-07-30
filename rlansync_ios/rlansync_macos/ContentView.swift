@@ -55,9 +55,7 @@ struct ContentView: View {
         .onAppear {
             loadFromDocument()
             
-            DispatchQueue.global().async {
-                SwiftObject.shared.sendToRust()
-            }
+            rlansync_lib_helper.shared.setup()
         }
         .onReceive(pub) { output in
             loadFromDocument()
@@ -84,9 +82,7 @@ struct ContentView: View {
     }
     
     private func pullItem() {
-        DispatchQueue.global().async {
-            SwiftObject.shared.pullFromRust()
-        }
+        rlansync_lib_helper.shared.pull()
     }
 
 }

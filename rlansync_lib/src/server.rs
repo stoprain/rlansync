@@ -11,7 +11,7 @@ use std::sync::mpsc::channel;
 use std::os::raw::c_void;
 use std::ops::Deref;
 
-use crate::{scanner, utils};
+use crate::{scanner, utils, swift_callback};
 use crate::strings;
 
 use crate::protos;
@@ -123,9 +123,10 @@ impl Server {
         }
     }
 
-    pub fn run(&mut self, obj: SwiftObject) {
+    pub fn run(&mut self) {
         let mut scanner = scanner::Scanner::new();
         scanner.scan(&self.root);
+        let s = scanner.tojson();
 
         let counter = Arc::new(Mutex::new(scanner));
         setup_tcp_listener(counter.clone());
@@ -134,6 +135,8 @@ impl Server {
         let mut watcher = watcher(tx, Duration::from_secs(1)).unwrap();
         watcher.watch(self.root.to_owned(), RecursiveMode::Recursive).unwrap();
         println!("watch {:?}", self.root);
+
+        swift_callback(&s);
     
         //TODO update file info
     
