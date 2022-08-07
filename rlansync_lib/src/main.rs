@@ -98,8 +98,11 @@ fn main() {
     let args: Vec<String> = env::args().collect();
     // // println!("{:?}", args)
     let filename = &args[1];
-    // let mut app = RustApp::new();
-    // app.setup(filename);
+    if cfg!(feature="swift") {
+    } else {
+        let mut app = RustApp::new();
+        app.setup(filename);
+    }
     // println!("Syncing {}", filename);
 
     // // iohelper::test(filename.to_string());

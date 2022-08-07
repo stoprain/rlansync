@@ -27,6 +27,9 @@ swift-bridge = "0.1"
 protobuf-codegen = "3.0.3"
 swift-bridge-build = "0.1"
 
+[features]
+swift = []
+
 [lib]
 crate-type = ["lib", "staticlib"]
 

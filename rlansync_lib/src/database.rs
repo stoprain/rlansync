@@ -1,6 +1,4 @@
-use protobuf::well_known_types::type_::Field;
 use serde::{Serialize, Deserialize};
-use serde_json::Result;
 use uuid::Uuid;
 use std::fs;
 use std::path::Path;
@@ -49,11 +47,11 @@ impl Database {
     pub fn update(&mut self, path: String) {
         // let data = format!(r"{"source"");
         // let v: FileInfo = serde_json::from_str(&data).unwrap();
-        let fileInfo = FileInfo {
+        let file_info = FileInfo {
             source: path.to_lowercase(),
             tag: "".to_string(),
         };
-        let j = serde_json::to_string(&fileInfo);
+        let _j = serde_json::to_string(&file_info);
         // println!("{} > {:?}", path, j)
     }
 

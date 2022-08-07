@@ -7,7 +7,7 @@ cd $THISDIR
 
 export SWIFT_BRIDGE_OUT_DIR="$(pwd)/generated"
 # Build the project for the desired platforms:
-cargo build --target x86_64-apple-darwin
+cargo build --features "swift" --target x86_64-apple-darwin
 mkdir -p ./target/universal-macos/debug
 
 lipo \

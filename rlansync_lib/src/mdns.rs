@@ -12,10 +12,8 @@ use gethostname::gethostname;
 use substring::Substring;
 use mdns_sd::{ServiceDaemon, ServiceInfo, ServiceEvent};
 use get_if_addrs::IfAddr::{V4, V6};
-use std::os::raw::{c_char};
 use crate::server::{Server};
 // use get_if_addrs::Ifv6Addr;
-use std::ffi::{CStr};
 
 pub fn setup_mdns() {
 
@@ -64,7 +62,7 @@ pub fn setup_mdns() {
                 V4(v) => {
                     ip = v.ip.to_string().to_owned()
                 },
-                V6(v) => {},
+                V6(_) => {},
             }
         }
         // println!("{:#?}", iface);

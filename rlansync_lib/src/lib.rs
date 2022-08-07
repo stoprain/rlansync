@@ -21,9 +21,6 @@ mod utils;
 // https://www.nickwilcox.com/blog/recipe_swift_rust_callback/
 //https://bignerdranch.com/blog/building-an-ios-app-in-rust-part-2-passing-primitive-data-between-rust-and-ios/
 
-use std::os::raw::{c_char};
-use std::ffi::{CStr};
-
 // #[no_mangle]
 // pub extern "C" fn notify(from: *const c_char) {
 //     let c_str = unsafe { CStr::from_ptr(from) };
@@ -47,6 +44,13 @@ use std::ffi::{CStr};
 
 // use std::time::{SystemTime, UNIX_EPOCH};
 
+#[cfg(not(feature = "swift"))]
+pub extern "C" fn swift_callback(json: &str) {
+    println!("swift_callback called");
+    println!("{}", json);
+}
+
+#[cfg(feature = "swift")]
 pub use ffi::swift_callback;
 use server::Server;
 
@@ -62,6 +66,7 @@ mod ffi {
         fn update(&mut self, path: &str, tag: &str);
     }
 
+    #[cfg(feature = "swift")]
     extern "Swift" {
         fn swift_callback(json: &str);
     }

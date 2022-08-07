@@ -29,22 +29,22 @@ mod tests;
 
 //https://stackoverflow.com/questions/30677258/how-do-i-import-from-a-sibling-module
 pub struct Server {
-    pub scannerCounter: Arc<Mutex<Scanner>>
+    pub scanner_counter: Arc<Mutex<Scanner>>
 }
 
 impl Server {
 
     pub fn new() -> Self {
-        let mut scanner = scanner::Scanner::new();
+        let scanner = scanner::Scanner::new();
         let counter =  Arc::new(Mutex::new(scanner));
         Server {
-            scannerCounter: counter
+            scanner_counter: counter
         }
     }
 
     pub fn pull(&mut self, path: &str, addr: &str) {
         println!("start pull");
-        let mut scanner = self.scannerCounter.lock().unwrap();
+        let mut scanner = self.scanner_counter.lock().unwrap();
         scanner.scan(path);
         
         let stream = TcpStream::connect(addr);
@@ -124,11 +124,11 @@ impl Server {
     }
 
     pub fn run(&mut self, path: &str) {
-        let mut scanner = self.scannerCounter.lock().unwrap();
+        let mut scanner = self.scanner_counter.lock().unwrap();
         scanner.scan(path);
-        let s = scanner.tojson();
+        let _ = scanner.tojson();
 
-        setup_tcp_listener(self.scannerCounter.clone());
+        setup_tcp_listener(self.scanner_counter.clone());
 
         // let (tx, rx) = channel();
         // let mut watcher = watcher(tx, Duration::from_secs(1)).unwrap();
@@ -137,9 +137,9 @@ impl Server {
 
         let ss = path.to_owned();
 
-        swift_callback(&s);
+        swift_callback(&ss);
 
-        let counter = self.scannerCounter.clone();
+        let counter = self.scanner_counter.clone();
 
         std::thread::spawn(move || {
             // TODO update file info
@@ -180,8 +180,8 @@ impl Server {
         });
     }
 
-    pub fn update(&mut self, path: &str, tag: &str) {
-        let scanner = self.scannerCounter.lock().unwrap();
+    pub fn update(&mut self, _path: &str, _tag: &str) {
+        let scanner = self.scanner_counter.lock().unwrap();
         println!("scanner.entries.len() {}", scanner.entries.len())
     }
 }
