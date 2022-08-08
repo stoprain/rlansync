@@ -27,8 +27,9 @@ impl std::fmt::Display for EntryInfo {
     }
 }
 
-const IGNORE_FILES: [&'static str; 1] = [
-    ".DS_Store"
+const IGNORE_FILES: [&'static str; 2] = [
+    ".DS_Store",
+    ".rlansync"
 ];
 
 pub struct Scanner {
@@ -60,10 +61,6 @@ impl Scanner {
             if is_folder {
                 // self.entries_hash.entry(pathbuf2).or_insert("".to_owned());
             } else {
-                let str = ss.unwrap().to_str().unwrap();
-                if IGNORE_FILES.contains(&str) {
-                    continue;
-                }
                 let path = pathbuf.into_os_string().into_string().unwrap();
                 // let input = File::open(&string).unwrap();
                 let input = Path::new(&path);
@@ -75,12 +72,12 @@ impl Scanner {
                 let secs = metadata.unwrap().modified().unwrap().duration_since(UNIX_EPOCH).unwrap().as_secs();
                 let entry = EntryInfo {
                     path: string.replace(&self.root, ""),
-                    digest: digest_string,
+                    digest: digest_string.to_owned(),
                     modified: secs
                 };
                 self.entries_info.entry(string.to_owned()).or_insert(entry);
 
-                database.update(path)
+                database.update(path, digest_string)
         
             }
         }
@@ -120,6 +117,13 @@ impl Iterator for FileIteratror {
                         let path = entry.path();
                         if let Ok(md) = entry.metadata() {
                             // println!("{:?}", md);
+
+                            // let str = ss.unwrap().to_str().unwrap();
+                            let str = path.file_name().unwrap().to_str().unwrap();
+                            if IGNORE_FILES.contains(&str) {
+                                continue;
+                            }
+
                             if !md.is_file() && !md.is_dir() {
                                 continue;
                             }

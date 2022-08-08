@@ -126,7 +126,7 @@ impl Server {
     pub fn run(&mut self, path: &str) {
         let mut scanner = self.scanner_counter.lock().unwrap();
         scanner.scan(path);
-        let _ = scanner.tojson();
+        let s = scanner.tojson();
 
         setup_tcp_listener(self.scanner_counter.clone());
 
@@ -137,7 +137,7 @@ impl Server {
 
         let ss = path.to_owned();
 
-        swift_callback(&ss);
+        swift_callback(&s);
 
         let counter = self.scanner_counter.clone();
 

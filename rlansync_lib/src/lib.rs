@@ -45,9 +45,9 @@ mod utils;
 // use std::time::{SystemTime, UNIX_EPOCH};
 
 #[cfg(not(feature = "swift"))]
+#[allow(warnings)]
 pub extern "C" fn swift_callback(json: &str) {
-    println!("swift_callback called");
-    println!("{}", json);
+    println!("swift_callback json > {}", json);
 }
 
 #[cfg(feature = "swift")]
