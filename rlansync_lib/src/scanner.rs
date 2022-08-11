@@ -54,7 +54,7 @@ impl Scanner {
         let mut iter = FileIteratror::from(parent_pathbuf);
         while let Some((pathbuf, is_folder)) = iter.next() {
             // println!("is folder {} {:?}", is_folder, pathbuf);
-            let ss = pathbuf.file_name().to_owned();
+            let _ = pathbuf.file_name().to_owned();
             let string = pathbuf.to_owned().into_os_string().into_string().unwrap();
             self.entries.push(string.to_owned());
 

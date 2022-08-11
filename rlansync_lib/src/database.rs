@@ -1,14 +1,22 @@
-use protobuf::plugin::code_generator_response::File;
+
+#[cfg(test)]
+mod database_tests;
+
 use serde::{Serialize, Deserialize};
 use uuid::Uuid;
 use std::fs;
 use std::path::Path;
-use rusqlite::{params, Connection, Result};
+use rusqlite::{params, Connection};
+use std::time::{SystemTime, UNIX_EPOCH};
 
 #[derive(Serialize, Deserialize, Debug)]
-struct FileInfo {
-    path: String,
-    digest: String,
+pub struct FileInfo {
+    pub path: String,
+    pub source: String,
+    pub digest: String,
+    pub tag: String,
+    pub modify: u64,
+    pub operation: String,
 }
 
 pub struct Database {
@@ -47,14 +55,14 @@ impl Database {
                 tag TEXT,
                 modify INTEGER,
                 operation TEXT
-             )",
+                )",
             [],
         ).unwrap();
 
         Database { 
             source: source,
             conn: conn,
-         }
+            }
     }
 
     /*
@@ -73,11 +81,16 @@ impl Database {
         // let _j = serde_json::to_string(&file_info);
         // println!("{} > {:?}", path, j)
         // println!("update path {}, digest {}", path, digest);
-        let mut stmt = self.conn.prepare("SELECT path, digest FROM entries WHERE path=:path;").unwrap();
+        let mut stmt = self.conn.prepare("SELECT path, source, digest, tag, modify, operation FROM entries WHERE path=:path;").unwrap();
+        let t = SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_secs();
         let entry_iter = stmt.query_map(&[(":path", &path)], |row| {
             Ok(FileInfo {
                 path: row.get(0).unwrap(),
-                digest: row.get(1).unwrap(),
+                source: row.get(1).unwrap(),
+                digest: row.get(2).unwrap(),
+                tag: row.get(3).unwrap(),
+                modify: row.get(4).unwrap(),
+                operation: row.get(5).unwrap(),
             })
         }).unwrap();
         for entry in entry_iter {
@@ -95,7 +108,11 @@ impl Database {
         println!("CREATE {} {}", path, digest);
         let entry = FileInfo {
             path: path,
-            digest: digest
+            source: "".to_string(),
+            digest: digest,
+            tag: "".to_string(),
+            modify: t,
+            operation: "".to_string(),
         };
         self.conn.execute(
             "INSERT INTO entries (path, digest) VALUES (?1, ?2)",
