@@ -126,7 +126,7 @@ impl Server {
     pub fn run(&mut self, path: &str) {
         let mut scanner = self.scanner_counter.lock().unwrap();
         scanner.scan(path);
-        let s = scanner.tojson();
+        let s = scanner.get_file_list();
 
         setup_tcp_listener(self.scanner_counter.clone());
 
@@ -163,7 +163,7 @@ impl Server {
                                 println!("Create pathbuf {:?}", pathbuf);
                                 // let s = pathbuf.into_os_string().into_string().unwrap();
                                 let mut scanner = counter.lock().unwrap();
-                                let s = scanner.tojson();
+                                let s = scanner.get_file_list();
                                 // (obj.callback_with_arg)(obj.user, strings::RustByteSlice::from(s.as_ref()));
                                 // println!("{:?}", scanner);
                                 // (obj.callback_with_arg)(obj.user, strings::RustByteSlice::from(s.as_ref()))

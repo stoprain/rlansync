@@ -12,6 +12,7 @@ pub mod server;
 pub mod scanner;
 pub mod mdns;
 pub mod database;
+pub mod syncer;
 mod protos;
 mod utils;
 
@@ -55,7 +56,7 @@ pub use ffi::swift_callback;
 use server::Server;
 use serde::{Serialize, Deserialize};
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct FileInfo {
     pub path: String,
     pub source: String,

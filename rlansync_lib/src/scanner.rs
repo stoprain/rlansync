@@ -1,3 +1,4 @@
+use core::sync;
 use std::{path::PathBuf};
 use std::fs::ReadDir;
 use std::fs;
@@ -11,6 +12,7 @@ use sha256::digest_file;
 // use std::error::Error;
 use std::time::{UNIX_EPOCH};
 
+use crate::syncer::Syncer;
 use crate::FileInfo;
 use crate::database::Database;
 // use crate::protos::generated_with_pure::example::file_info;
@@ -38,6 +40,7 @@ pub struct Scanner {
     pub entries: Vec<String>,
     pub entries_info: HashMap<String, EntryInfo>,
     pub root: String,
+    syncer: Syncer,
 }
 
 impl Scanner {
@@ -46,6 +49,7 @@ impl Scanner {
             entries: vec![],
             entries_info: HashMap::new(),
             root: "".to_string(),
+            syncer: Syncer::new()
         }
     }
     pub fn scan(&mut self, parent_pathbuf: &str) {
@@ -92,14 +96,9 @@ impl Scanner {
             }
         }
     }
-    pub fn tojson(&mut self) -> String {
-        let mut entries: Vec<EntryInfo> = Vec::new();
-        let infos = &self.entries_info;
-        for (_, value) in infos.into_iter() {
-            entries.push(value.clone());
-        }
-        let json = serde_json::to_string(&entries).unwrap();
-        return json;
+    
+    pub fn get_file_list(&mut self) -> String {
+        return self.syncer.get_file_list()
     }
 }
 
