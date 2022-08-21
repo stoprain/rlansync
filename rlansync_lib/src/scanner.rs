@@ -11,7 +11,9 @@ use sha256::digest_file;
 // use std::error::Error;
 use std::time::{UNIX_EPOCH};
 
+use crate::FileInfo;
 use crate::database::Database;
+// use crate::protos::generated_with_pure::example::file_info;
 use serde::{Serialize, Deserialize};
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -48,7 +50,7 @@ impl Scanner {
     }
     pub fn scan(&mut self, parent_pathbuf: &str) {
 
-        let mut database = Database::new(parent_pathbuf);
+        let mut database = Database::new(Some(parent_pathbuf));
 
         self.root = parent_pathbuf.to_string();
         let mut iter = FileIteratror::from(parent_pathbuf);
@@ -76,8 +78,16 @@ impl Scanner {
                     modified: secs
                 };
                 self.entries_info.entry(string.to_owned()).or_insert(entry);
-
-                database.update(path, digest_string)
+                
+                let entry = FileInfo {
+                    path: path,
+                    source: "".to_string(),
+                    digest: digest_string,
+                    tag: "".to_string(),
+                    modify: secs,
+                    operation: "".to_string(),
+                };
+                database.update(entry)
         
             }
         }

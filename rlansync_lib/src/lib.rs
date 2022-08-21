@@ -53,6 +53,17 @@ pub extern "C" fn swift_callback(json: &str) {
 #[cfg(feature = "swift")]
 pub use ffi::swift_callback;
 use server::Server;
+use serde::{Serialize, Deserialize};
+
+#[derive(Serialize, Deserialize, Debug)]
+pub struct FileInfo {
+    pub path: String,
+    pub source: String,
+    pub digest: String,
+    pub tag: String,
+    pub modify: u64,
+    pub operation: String,
+}
 
 #[swift_bridge::bridge]
 mod ffi {

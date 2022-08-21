@@ -1,56 +1,49 @@
-use super::FileInfo;
+// use super::FileInfo;
 
 #[cfg(test)]
 mod database_tests {
 
-    use rusqlite::{Connection};
+    use crate::{database::Database, FileInfo};
     
     #[test]
     fn test_in_memory() {
-        let conn = Connection::open_in_memory().unwrap();
-        conn.execute(
-            "CREATE TABLE IF NOT EXISTS entries (
-                path TEXT PRIMARY KEY,
-                source TEXT,
-                digest TEXT,
-                tag TEXT,
-                modify INTEGER,
-                operation TEXT
-             )",
-            [],
-        ).unwrap();
+        let mut db = Database::new(None);
+        let a = db.get("test".to_string());
+        assert!(a.is_none());
 
-        let entry = super::FileInfo {
-            path: "a".to_string(),
-            source: "b".to_string(),
-            digest: "c".to_string(),
-            tag: "d".to_string(),
+        let entry = FileInfo {
+            path: "path".to_string(),
+            source: "".to_string(),
+            digest: "digest".to_string(),
+            tag: "".to_string(),
             modify: 123,
-            operation: "e".to_string(),
+            operation: "".to_string(),
         };
-        conn.execute(
-            "INSERT INTO entries (path, source, digest, tag, modify, operation) VALUES (?1, ?2, ?3, ?4, ?5, ?6)",
-            (&entry.path, &entry.source, &entry.digest, &entry.tag, &entry.modify, &entry.operation),
-        ).unwrap();
+        db.add(entry);
 
-        let mut stmt = conn.prepare("SELECT path, source, digest, tag, modify, operation FROM entries WHERE path=:path;").unwrap();
-        let entry_iter = stmt.query_map(&[(":path", "a")], |row| {
-            Ok(super::FileInfo {
-                path: row.get(0).unwrap(),
-                source: row.get(1).unwrap(),
-                digest: row.get(2).unwrap(),
-                tag: row.get(3).unwrap(),
-                modify: row.get(4).unwrap(),
-                operation: row.get(5).unwrap(),
-            })
-        }).unwrap();
-        let mut found = false;
-        for entry in entry_iter {
-            if entry.unwrap().digest == "c" {
-                found = true
-            }
-            break
-        }
-        assert!(found);
+        let b = db.get("path".to_string()).unwrap();
+        assert_eq!(b.path, "path");
+        assert_eq!(b.digest, "digest");
+        assert_eq!(b.modify, 123);
+
+        let entry = FileInfo {
+            path: "path".to_string(),
+            source: "source".to_string(),
+            digest: "digest".to_string(),
+            tag: "tag".to_string(),
+            modify: 456,
+            operation: "update".to_string(),
+        };
+        db.update(entry);
+        let c = db.get("path".to_string()).unwrap();
+        assert_eq!(c.source, "source");
+        assert_eq!(c.tag, "tag");
+        assert_eq!(c.modify, 456);
+        assert_eq!(c.operation, "update");
+
+        db.remove("path".to_string());
+        let d = db.get("test".to_string());
+        assert!(d.is_none());
+
     }
 }
