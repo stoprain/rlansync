@@ -18,7 +18,7 @@ fn main() {
     let args: Vec<String> = env::args().collect();
     let filename = &args[1];
 
-    let mut app = RustApp::new();
+    let mut app = RustApp::new(filename);
     app.pull(filename);
 
     // let a = filename.as_ptr() as *const c_char;

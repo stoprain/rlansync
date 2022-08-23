@@ -16,35 +16,6 @@ pub mod syncer;
 mod protos;
 mod utils;
 
-// build for iOS
-// https://blog.mozilla.org/data/2022/01/31/this-week-in-glean-building-and-deploying-a-rust-library-on-ios/#fnref1
-// https://mozilla.github.io/firefox-browser-architecture/experiments/2017-09-06-rust-on-ios.html
-// https://www.nickwilcox.com/blog/recipe_swift_rust_callback/
-//https://bignerdranch.com/blog/building-an-ios-app-in-rust-part-2-passing-primitive-data-between-rust-and-ios/
-
-// #[no_mangle]
-// pub extern "C" fn notify(from: *const c_char) {
-//     let c_str = unsafe { CStr::from_ptr(from) };
-//     let default = match c_str.to_str() {
-//         Err(_) => "",
-//         Ok(string) => string,
-//     };
-
-
-// }
-
-// use std::thread;
-
-// use local_ip_address::local_ip;
-
-// impl Drop for CompletedCallback {
-//     fn drop(&mut self) {
-//         panic!("CompletedCallback must have explicit succeeded or failed call")
-//     }
-// }
-
-// use std::time::{SystemTime, UNIX_EPOCH};
-
 #[cfg(not(feature = "swift"))]
 #[allow(warnings)]
 pub extern "C" fn swift_callback(json: &str) {
@@ -72,8 +43,8 @@ mod ffi {
         type RustApp;
 
         #[swift_bridge(init)]
-        fn new() -> RustApp;
-        fn setup(&mut self, path: &str);
+        fn new(path: &str) -> RustApp;
+        fn setup(&mut self);
         fn pull(&mut self, path: &str);
         fn update(&mut self, path: &str, tag: &str);
     }
@@ -89,15 +60,14 @@ pub struct RustApp {
 }
 
 impl RustApp {
-    pub fn new() -> Self {
+    pub fn new(path: &str) -> Self {
         RustApp {
-            server: server::Server::new(),
+            server: server::Server::new(path),
         }
     }
 
-    pub fn setup(&mut self, path: &str) {
+    pub fn setup(&mut self) {
         mdns::setup_mdns();
-        self.server.run(path);
     }
 
     pub fn pull(&mut self, path: &str) {

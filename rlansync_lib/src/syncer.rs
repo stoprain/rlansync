@@ -1,14 +1,37 @@
 use std::collections::HashMap;
+use crate::{scanner::{Scanner, EntryInfo}, database::Database};
+
 use super::FileInfo;
 
 pub struct Syncer {
-    pub entries_info: HashMap<String, FileInfo>
+    pub entries_info: HashMap<String, FileInfo>,
+    pub scanner: Scanner,
+    pub root: String,
+    database: Database,
+    source: String,
 }
 
 impl Syncer {
-    pub fn new() -> Syncer {
-        Syncer {
-            entries_info: HashMap::new()
+    pub fn new(path: &str) -> Syncer {
+        let database = Database::new(Some(path));
+        let mut s = Syncer {
+            entries_info: HashMap::new(),
+            scanner: Scanner::new(),
+            root: path.to_string(),
+            database: database,
+            source: "".to_string()
+        };
+        s.run();
+        return s;
+    }
+
+    pub fn run(&mut self) {
+        self.source = self.database.source.to_owned();
+        let files = self.scanner.scan(&self.root);
+        println!("scan {} files", files.len());
+
+        for (_, value) in files.into_iter() {
+            self.add(&value);
         }
     }
 
@@ -19,7 +42,25 @@ impl Syncer {
     2. Add from watcher (already in )
     3. Add from puller (different source)
 */
-    pub fn add(&mut self) {
+    pub fn add(&mut self, entry: &EntryInfo) {
+        if let Some(e) = self.database.get(entry.path.to_owned()) {
+            //TODO check digest
+            if e.digest == entry.digest {
+
+            } else {
+
+            }
+        } else {
+            let file = FileInfo {
+                path: entry.path.to_owned(),
+                source: self.source.to_string(),
+                digest: entry.digest.to_owned(),
+                tag: "".to_string(),
+                modify: entry.modified,
+                operation: "".to_string(),
+            };
+            self.database.add(file)
+        }
     }
 
 /*
@@ -38,7 +79,7 @@ impl Syncer {
 /*
     1. Update from App
  */
-    pub fn update_tag(&mut self) {
+    pub fn update_tag(&mut self, path: String, tag: String) {
 
     }
 

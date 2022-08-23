@@ -118,8 +118,8 @@ pub fn query_mdns(from: String) {
 
                 println!("address {:?}", address);
 
-                let mut server = Server::new();
-                server.pull(&from, &address);
+                let mut server = Server::new(&from);
+                server.pull(&address);
                 
                 println!("Resolved a new service: {:?}", address);
             }

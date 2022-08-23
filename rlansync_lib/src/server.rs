@@ -9,7 +9,7 @@ use std::time::Duration;
 use notify::{Watcher, RecursiveMode, watcher};
 use std::sync::mpsc::channel;
 
-use crate::scanner::Scanner;
+use crate::syncer::Syncer;
 use crate::{scanner, utils, swift_callback};
 
 use crate::protos;
@@ -29,23 +29,25 @@ mod tests;
 
 //https://stackoverflow.com/questions/30677258/how-do-i-import-from-a-sibling-module
 pub struct Server {
-    pub scanner_counter: Arc<Mutex<Scanner>>
+    pub sync_counter: Arc<Mutex<Syncer>>,
+    root: String
 }
 
 impl Server {
 
-    pub fn new() -> Self {
-        let scanner = scanner::Scanner::new();
-        let counter =  Arc::new(Mutex::new(scanner));
+    pub fn new(path: &str) -> Self {
+        let syncer = Syncer::new(path);
+        let counter =  Arc::new(Mutex::new(syncer));
         Server {
-            scanner_counter: counter
+            sync_counter: counter,
+            root: path.to_owned()
         }
     }
 
-    pub fn pull(&mut self, path: &str, addr: &str) {
+    pub fn pull(&mut self, addr: &str) {
         println!("start pull");
-        let mut scanner = self.scanner_counter.lock().unwrap();
-        scanner.scan(path);
+        let mut syncer = self.sync_counter.lock().unwrap();
+        // syncer.run(path);
         
         let stream = TcpStream::connect(addr);
         let stream = match stream {
@@ -74,7 +76,7 @@ impl Server {
         for value in res.fileInfos.into_iter() {
             let first = value;
 
-            let infos = &scanner.entries_info;
+            let infos = &syncer.entries_info;
             let mut is_exist = false;
             let mut exist_path = "".to_owned();
             for (_, value) in infos.into_iter() {
@@ -88,13 +90,13 @@ impl Server {
                 }
             }
 
-            let s = path.to_owned() + &first.path;
+            let s = self.root.to_owned() + &first.path;
 
             if is_exist {
                 println!("> already exist {:?}", s);
                 continue;
             } else if exist_path.len() > 0 {
-                let ss =  path.to_owned() + &exist_path;
+                let ss =  self.root.to_owned() + &exist_path;
                 println!("> move {:?} > {:?}", ss, s);
                 fs::copy(ss, s).unwrap();
                 continue;
@@ -124,11 +126,11 @@ impl Server {
     }
 
     pub fn run(&mut self, path: &str) {
-        let mut scanner = self.scanner_counter.lock().unwrap();
-        scanner.scan(path);
-        let s = scanner.get_file_list();
+        let mut syncer = self.sync_counter.lock().unwrap();
+        // syncer.run(path);
+        let s = syncer.get_file_list();
 
-        setup_tcp_listener(self.scanner_counter.clone());
+        setup_tcp_listener(self.sync_counter.clone());
 
         // let (tx, rx) = channel();
         // let mut watcher = watcher(tx, Duration::from_secs(1)).unwrap();
@@ -139,7 +141,7 @@ impl Server {
 
         swift_callback(&s);
 
-        let counter = self.scanner_counter.clone();
+        let counter = self.sync_counter.clone();
 
         std::thread::spawn(move || {
             // TODO update file info
@@ -180,14 +182,14 @@ impl Server {
         });
     }
 
-    pub fn update(&mut self, _path: &str, _tag: &str) {
-        let scanner = self.scanner_counter.lock().unwrap();
-        println!("scanner.entries.len() {}", scanner.entries.len())
+    pub fn update(&mut self, path: &str, tag: &str) {
+        let mut syncer = self.sync_counter.lock().unwrap();
+        syncer.update_tag(path.to_string(), tag.to_string());
     }
 }
 
 //https://doc.rust-lang.org/book/ch20-01-single-threaded.html
-fn setup_tcp_listener(counter: Arc<Mutex<scanner::Scanner>>) {
+fn setup_tcp_listener(counter: Arc<Mutex<Syncer>>) {
     std::thread::spawn(move || {
         let listener = TcpListener::bind("0.0.0.0:8888").expect("Could not bind");
         println!("listener {:?}", listener);
@@ -205,12 +207,12 @@ fn setup_tcp_listener(counter: Arc<Mutex<scanner::Scanner>>) {
     });
 }
 
-fn handle_client(stream: TcpStream, counter: Arc<Mutex<scanner::Scanner>>)-> Result<(), Error> {
+fn handle_client(stream: TcpStream, counter: Arc<Mutex<Syncer>>)-> Result<(), Error> {
     
     println!("<< incoming connection from: {}", stream.peer_addr()?);
 
     loop {
-        let scanner = counter.lock().unwrap();
+        let syncer = counter.lock().unwrap();
 
         let payload = utils::read_head_and_bytes(&stream);
         let p = match payload {
@@ -227,15 +229,15 @@ fn handle_client(stream: TcpStream, counter: Arc<Mutex<scanner::Scanner>>)-> Res
             res.from = request.from;
             res.fileInfos = Vec::new();
 
-            let infos = &scanner.entries_info;
+            let infos = &syncer.entries_info;
             for (_, value) in infos.into_iter() {
-                if value.modified as i64 > request.from {
+                if value.modify as i64 > request.from {
                     let mut info = FileInfo::new();
                     info.path = value.path.to_owned();
                     info.status = Status::CREATE.into();
                     info.digest = value.digest.to_owned();
                     res.fileInfos.push(info);
-                    res.from = value.modified as i64;
+                    res.from = value.modify as i64;
                 }
             }
 
@@ -248,11 +250,11 @@ fn handle_client(stream: TcpStream, counter: Arc<Mutex<scanner::Scanner>>)-> Res
             let mut res = FileDataResponse::new();
             res.digest = request.digest.to_owned();
             
-            let infos = &scanner.entries_info;
+            let infos = &syncer.entries_info;
             for (_, value) in infos.into_iter() {
                 if value.digest == request.digest {
                     // let s = scanner.root.push_str(value.path.to_string());
-                    let s = scanner.root.to_owned() + &value.path;
+                    let s = syncer.root.to_owned() + &value.path;
                     let mut f = File::open(s).expect("no file found");
                     let metadata = File::metadata(&f).expect("unable to read metadata");
                     let mut buffer = vec![0; metadata.len() as usize];

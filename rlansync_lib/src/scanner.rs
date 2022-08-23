@@ -1,4 +1,3 @@
-use core::sync;
 use std::{path::PathBuf};
 use std::fs::ReadDir;
 use std::fs;
@@ -12,10 +11,7 @@ use sha256::digest_file;
 // use std::error::Error;
 use std::time::{UNIX_EPOCH};
 
-use crate::syncer::Syncer;
-use crate::FileInfo;
-use crate::database::Database;
-// use crate::protos::generated_with_pure::example::file_info;
+// use crate::FileInfo;
 use serde::{Serialize, Deserialize};
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -38,23 +34,19 @@ const IGNORE_FILES: [&'static str; 2] = [
 
 pub struct Scanner {
     pub entries: Vec<String>,
-    pub entries_info: HashMap<String, EntryInfo>,
     pub root: String,
-    syncer: Syncer,
 }
 
 impl Scanner {
     pub fn new() -> Scanner {
         Scanner {
             entries: vec![],
-            entries_info: HashMap::new(),
             root: "".to_string(),
-            syncer: Syncer::new()
         }
     }
-    pub fn scan(&mut self, parent_pathbuf: &str) {
+    pub fn scan(&mut self, parent_pathbuf: &str) -> HashMap<String, EntryInfo> {
 
-        let mut database = Database::new(Some(parent_pathbuf));
+        let mut entries_info: HashMap<String, EntryInfo> = HashMap::new();
 
         self.root = parent_pathbuf.to_string();
         let mut iter = FileIteratror::from(parent_pathbuf);
@@ -81,25 +73,34 @@ impl Scanner {
                     digest: digest_string.to_owned(),
                     modified: secs
                 };
-                self.entries_info.entry(string.to_owned()).or_insert(entry);
+                entries_info.entry(string.to_owned()).or_insert(entry);
                 
-                let entry = FileInfo {
-                    path: path,
-                    source: "".to_string(),
-                    digest: digest_string,
-                    tag: "".to_string(),
-                    modify: secs,
-                    operation: "".to_string(),
-                };
-                database.update(entry)
+                // let entry = FileInfo {
+                //     path: path,
+                //     source: "".to_string(),
+                //     digest: digest_string,
+                //     tag: "".to_string(),
+                //     modify: secs,
+                //     operation: "".to_string(),
+                // };
+                // database.update(entry)
         
             }
         }
+
+        return entries_info;
     }
-    
-    pub fn get_file_list(&mut self) -> String {
-        return self.syncer.get_file_list()
-    }
+
+
+    // pub fn tojson(&mut self) -> String {
+    //     let mut entries: Vec<EntryInfo> = Vec::new();
+    //     let infos = &self.entries_info;
+    //     for (_, value) in infos.into_iter() {
+    //         entries.push(value.clone());
+    //     }
+    //     let json = serde_json::to_string(&entries).unwrap();
+    //     return json;
+    // }
 }
 
 struct FileIteratror {
