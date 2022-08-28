@@ -1,12 +1,9 @@
 #[cfg(test)]
 mod database_tests;
-// use protobuf::well_known_types::type_::Field;
 use uuid::Uuid;
 use std::fs;
 use std::path::Path;
 use rusqlite::{params, Connection};
-// use std::time::{SystemTime, UNIX_EPOCH};
-// use crate::protos::generated_with_pure::example::file_info;
 
 use super::FileInfo;
 
@@ -63,7 +60,7 @@ impl Database {
             }
     }
 
-    pub fn get(&mut self, path: String) -> Option<FileInfo> {
+    pub fn get(&mut self, path: &str) -> Option<FileInfo> {
         let mut stmt = self.conn.prepare("SELECT path, source, digest, tag, modify, operation FROM entries WHERE path=:path;").unwrap();
         let entry_iter = stmt.query_map(&[(":path", &path)], |row| {
             Ok(FileInfo {
@@ -81,19 +78,19 @@ impl Database {
         return None;
     }
 
-    pub fn add(&mut self, entry: FileInfo) {
+    pub fn add(&mut self, entry: &FileInfo) {
         self.conn.execute(
             "INSERT INTO entries (path, source, digest, tag, modify, operation) VALUES (?1, ?2, ?3, ?4, ?5, ?6)",
             (&entry.path, &entry.source, &entry.digest, &entry.tag, &entry.modify, &entry.operation),
         ).unwrap();
     }
 
-    pub fn update(&mut self, entry: FileInfo) {
+    pub fn update(&mut self, entry: &FileInfo) {
         self.conn.execute("UPDATE entries SET source = ?1, digest = ?2, tag = ?3, modify = ?4, operation = ?5 WHERE path = ?6", 
             params![entry.source, entry.digest, entry.tag, entry.modify, entry.operation, entry.path]).unwrap();
     }
 
-    pub fn remove(&mut self, path: String) {
+    pub fn remove(&mut self, path: &str) {
         self.conn.execute("DELETE FROM entries WHERE path = (?1)", params![path]).unwrap();
     }
 

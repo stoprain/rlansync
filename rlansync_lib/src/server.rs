@@ -10,7 +10,7 @@ use notify::{Watcher, RecursiveMode, watcher};
 use std::sync::mpsc::channel;
 
 use crate::syncer::Syncer;
-use crate::{scanner, utils, swift_callback};
+use crate::{utils, swift_callback};
 
 use crate::protos;
 use crate::utils::write_head_and_bytes;
@@ -46,8 +46,7 @@ impl Server {
 
     pub fn pull(&mut self, addr: &str) {
         println!("start pull");
-        let mut syncer = self.sync_counter.lock().unwrap();
-        // syncer.run(path);
+        let syncer = self.sync_counter.lock().unwrap();
         
         let stream = TcpStream::connect(addr);
         let stream = match stream {
@@ -76,7 +75,7 @@ impl Server {
         for value in res.fileInfos.into_iter() {
             let first = value;
 
-            let infos = &syncer.entries_info;
+            let infos = &syncer.file_infos;
             let mut is_exist = false;
             let mut exist_path = "".to_owned();
             for (_, value) in infos.into_iter() {
@@ -125,29 +124,19 @@ impl Server {
         }
     }
 
-    pub fn run(&mut self, path: &str) {
+    pub fn run(&mut self) {
         let mut syncer = self.sync_counter.lock().unwrap();
-        // syncer.run(path);
         let s = syncer.get_file_list();
 
         setup_tcp_listener(self.sync_counter.clone());
 
-        // let (tx, rx) = channel();
-        // let mut watcher = watcher(tx, Duration::from_secs(1)).unwrap();
-        // watcher.watch(self.root.to_owned(), RecursiveMode::Recursive).unwrap();
-        // println!("watch {:?}", self.root);
-
-        let ss = path.to_owned();
+        let ss = self.root.to_owned();
 
         swift_callback(&s);
 
         let counter = self.sync_counter.clone();
 
         std::thread::spawn(move || {
-            // TODO update file info
-
-            // let (tx, rx) = channel();
-
             let (tx, rx) = channel();
             let mut watcher = watcher(tx, Duration::from_secs(1)).unwrap();
             watcher.watch(ss.to_owned(), RecursiveMode::Recursive).unwrap();
@@ -156,23 +145,19 @@ impl Server {
             loop {
                 match rx.recv() {
                     Ok(event) => {
-                        println!("{:?}", event);
+                        // println!("{:?}", event);
+                        let mut syncer = counter.lock().unwrap();
                         match event {
                             notify::DebouncedEvent::Remove(pathbuf) => {
-                                println!("Remove pathbuf {:?}", pathbuf);
+                                syncer.remove(pathbuf.into_os_string().into_string().unwrap())
                             }
                             notify::DebouncedEvent::Create(pathbuf) => {
-                                println!("Create pathbuf {:?}", pathbuf);
-                                // let s = pathbuf.into_os_string().into_string().unwrap();
-                                let mut scanner = counter.lock().unwrap();
-                                let s = scanner.get_file_list();
-                                // (obj.callback_with_arg)(obj.user, strings::RustByteSlice::from(s.as_ref()));
-                                // println!("{:?}", scanner);
-                                // (obj.callback_with_arg)(obj.user, strings::RustByteSlice::from(s.as_ref()))
-                                swift_callback(&s);
+                                syncer.add(pathbuf.into_os_string().into_string().unwrap())
+                            }
+                            notify::DebouncedEvent::Write(pathbuf) => {
+                                syncer.update(pathbuf.into_os_string().into_string().unwrap())
                             }
                             _ => {
-        
                             }
                         }
                     },
@@ -184,7 +169,7 @@ impl Server {
 
     pub fn update(&mut self, path: &str, tag: &str) {
         let mut syncer = self.sync_counter.lock().unwrap();
-        syncer.update_tag(path.to_string(), tag.to_string());
+        syncer.update_tag(path, tag);
     }
 }
 
@@ -229,7 +214,7 @@ fn handle_client(stream: TcpStream, counter: Arc<Mutex<Syncer>>)-> Result<(), Er
             res.from = request.from;
             res.fileInfos = Vec::new();
 
-            let infos = &syncer.entries_info;
+            let infos = &syncer.file_infos;
             for (_, value) in infos.into_iter() {
                 if value.modify as i64 > request.from {
                     let mut info = FileInfo::new();
@@ -250,7 +235,7 @@ fn handle_client(stream: TcpStream, counter: Arc<Mutex<Syncer>>)-> Result<(), Er
             let mut res = FileDataResponse::new();
             res.digest = request.digest.to_owned();
             
-            let infos = &syncer.entries_info;
+            let infos = &syncer.file_infos;
             for (_, value) in infos.into_iter() {
                 if value.digest == request.digest {
                     // let s = scanner.root.push_str(value.path.to_string());

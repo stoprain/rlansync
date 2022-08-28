@@ -1,5 +1,3 @@
-// use super::FileInfo;
-
 #[cfg(test)]
 mod database_tests {
 
@@ -8,7 +6,7 @@ mod database_tests {
     #[test]
     fn test_in_memory() {
         let mut db = Database::new(None);
-        let a = db.get("test".to_string());
+        let a = db.get("test");
         assert!(a.is_none());
 
         let entry = FileInfo {
@@ -19,9 +17,9 @@ mod database_tests {
             modify: 123,
             operation: "".to_string(),
         };
-        db.add(entry);
+        db.add(&entry);
 
-        let b = db.get("path".to_string()).unwrap();
+        let b = db.get("path").unwrap();
         assert_eq!(b.path, "path");
         assert_eq!(b.digest, "digest");
         assert_eq!(b.modify, 123);
@@ -34,15 +32,15 @@ mod database_tests {
             modify: 456,
             operation: "update".to_string(),
         };
-        db.update(entry);
-        let c = db.get("path".to_string()).unwrap();
+        db.update(&entry);
+        let c = db.get("path").unwrap();
         assert_eq!(c.source, "source");
         assert_eq!(c.tag, "tag");
         assert_eq!(c.modify, 456);
         assert_eq!(c.operation, "update");
 
-        db.remove("path".to_string());
-        let d = db.get("test".to_string());
+        db.remove("path");
+        let d = db.get("test");
         assert!(d.is_none());
 
     }

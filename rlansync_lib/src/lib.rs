@@ -19,7 +19,8 @@ mod utils;
 #[cfg(not(feature = "swift"))]
 #[allow(warnings)]
 pub extern "C" fn swift_callback(json: &str) {
-    println!("swift_callback json > {}", json);
+    let entries: Vec<FileInfo> = serde_json::from_str(json).unwrap();
+    println!("swift_callback json len > {}", entries.len());
 }
 
 #[cfg(feature = "swift")]
@@ -68,6 +69,8 @@ impl RustApp {
 
     pub fn setup(&mut self) {
         mdns::setup_mdns();
+        self.server.run();
+        println!("######## start sync ########")
     }
 
     pub fn pull(&mut self, path: &str) {
